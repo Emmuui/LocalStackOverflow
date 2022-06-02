@@ -39,6 +39,28 @@ class Comment(models.Model):
         return self.text[:20]
 
 
+class Voting(models.Model):
+    rating_choice = (
+        ('UP_VOTE', 1),
+        ('DOWN_VOTE', -1)
+    )
+
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    choose_rating = models.CharField(max_length=50, choices=rating_choice)
+    created_at = models.DateTimeField(auto_now=True)
+
+    content_type = models.ForeignKey(ContentType, null=True,
+                                     blank=True, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(
+        verbose_name='related object',
+        null=True,
+    )
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        return f'{self.username} - {self.choose_rating}'
+
+
 class Tag(models.Model):
     """ Tag(s) of question """
 
@@ -59,6 +81,7 @@ class Question(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     comment = GenericRelation(Comment)
+    voting = GenericRelation(Voting)
 
     def __str__(self):
         return f'Username: {self.username} - Title: {self.title[:15]}'
@@ -74,6 +97,7 @@ class Answer(models.Model):
                                    blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     comment = GenericRelation(Comment)
+    voting = GenericRelation(Voting)
 
     def __str__(self):
         return f'Username: {self.username} - Question title: {self.question.title}: Answer title:{self.title[:15]}'
