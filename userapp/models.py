@@ -6,7 +6,7 @@ from .services import upload_file
 class UserProfile(AbstractUser):
     """ User with AbstractUser """
 
-    avatar = models.ImageField(upload_to=upload_file)
+    avatar = models.ImageField(upload_to=upload_file, null=True, blank=True)
     description = models.TextField(max_length=2000, null=True, blank=True)
     rating = models.IntegerField(default=100, null=True, blank=True)
     rank = models.CharField(max_length=150, null=True, blank=True)
