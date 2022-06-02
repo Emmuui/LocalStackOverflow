@@ -1,23 +1,17 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
+from userapp.models import UserProfile
 
 
-class UserProfile(models.Model):
-    """ UserProfile model """
+class Tag(models.Model):
+    """ Tag(s) of question """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField()
-    description = models.TextField(max_length=2000, null=True, blank=True)
-    rating = models.SmallIntegerField(null=True, blank=True)
-    rank = models.CharField(max_length=150, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(verbose_name='Name of tag', max_length=255)
 
     def __str__(self):
-        return self.user.username
+        return f'{self.name}'
 
 
 class Comment(models.Model):
@@ -39,37 +33,6 @@ class Comment(models.Model):
         return self.text[:20]
 
 
-class Voting(models.Model):
-    rating_choice = (
-        ('UP_VOTE', 1),
-        ('DOWN_VOTE', -1)
-    )
-
-    username = models.ForeignKey(User, on_delete=models.CASCADE)
-    choose_rating = models.CharField(max_length=50, choices=rating_choice)
-    created_at = models.DateTimeField(auto_now=True)
-
-    content_type = models.ForeignKey(ContentType, null=True,
-                                     blank=True, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(
-        verbose_name='related object',
-        null=True,
-    )
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-    def __str__(self):
-        return f'{self.username} - {self.choose_rating}'
-
-
-class Tag(models.Model):
-    """ Tag(s) of question """
-
-    name = models.CharField(verbose_name='Name of tag', max_length=255)
-
-    def __str__(self):
-        return f'{self.name}'
-
-
 class Question(models.Model):
     """ User`s question model """
 
@@ -81,7 +44,7 @@ class Question(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     comment = GenericRelation(Comment)
-    voting = GenericRelation(Voting)
+    # voting = GenericRelation(Vote)
 
     def __str__(self):
         return f'Username: {self.username} - Title: {self.title[:15]}'
@@ -97,13 +60,11 @@ class Answer(models.Model):
                                    blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     comment = GenericRelation(Comment)
-    voting = GenericRelation(Voting)
+    # voting = GenericRelation(Vote)
 
     def __str__(self):
         return f'Username: {self.username} - Question title: {self.question.title}: Answer title:{self.title[:15]}'
 
     class Meta:
         verbose_name_plural = 'Answers'
-
-
 
