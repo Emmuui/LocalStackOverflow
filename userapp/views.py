@@ -1,34 +1,48 @@
-from rest_framework import generics, status
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-from .serializers import UserUpdateSerializer
-from .models import *
-from .permissions import IsOwnerOrReadOnly
+from rest_framework.permissions import IsAdminUser
+from .serializers import UserListSerializer
+from .models import UserProfile
+from .permissions import IsOwnerOnly
 
 
-class UserListView(generics.ListAPIView):
-    """ ListView for all users """
+class PutUserDetailView(APIView):
+    """ Only owner or is_staff user has access to this view """
+    permission_classes = (IsAdminUser, IsOwnerOnly)
 
-    permission_classes = [IsAdminUser]
-    queryset = UserProfile.objects.all()
-    serializer_class = UserUpdateSerializer
+    def put(self, request, pk):
+        user = get_object_or_404(UserProfile.objects.all(), pk=pk)
+        serializer = UserListSerializer(user, data=request.data)
+        self.check_object_permissions(request, user)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserDetailView(APIView):
+class GetUserDetailView(APIView):
+    """ All user can get detail view of current user by pk """
 
     def get(self, request, pk, format=None):
         user = UserProfile.objects.filter(id=pk)
-        serializer = UserUpdateSerializer(user, many=True)
-        if request.user == UserProfile.objects.get(id=pk):
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = UserListSerializer(user, many=True)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
 
-    def put(self, request, pk):
-        snippet = UserProfile.objects.get(pk=pk)
-        serializer = UserUpdateSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetUserListView(APIView):
+    """ Only is_staff user can get list of all users """
+    permission_classes = (IsAdminUser,)
+
+    def get(self, request):
+
+        user = UserProfile.objects.all()
+        serializer = UserListSerializer(user, many=True)
+        self.check_object_permissions(request, user)
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
