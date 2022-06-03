@@ -7,5 +7,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('api-auth/', include('rest_framework.urls')),
-    path('stackoverflow/api/', include('userapp.urls')),
+    path('stackoverflow/user/', include('userapp.urls')),
+    path('stackoverflow/question/', include('question.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

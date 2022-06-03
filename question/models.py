@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from userapp.models import UserProfile
+from vote.models import Vote
 
 
 class Tag(models.Model):
@@ -40,11 +41,11 @@ class Question(models.Model):
     title = models.CharField(verbose_name='Input your title', max_length=255)
     description = models.TextField(verbose_name='Description of question',
                                    max_length=2000, null=True, blank=True)
-    tag = models.ManyToManyField(Tag, verbose_name='User`s tag(s)')
+    tag = models.ManyToManyField(Tag, verbose_name='User`s tag(s)', null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     comment = GenericRelation(Comment)
-    # voting = GenericRelation(Vote)
+    voting = GenericRelation(Vote)
 
     def __str__(self):
         return f'Username: {self.username} - Title: {self.title[:15]}'
@@ -60,7 +61,7 @@ class Answer(models.Model):
                                    blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     comment = GenericRelation(Comment)
-    # voting = GenericRelation(Vote)
+    voting = GenericRelation(Vote)
 
     def __str__(self):
         return f'Username: {self.username} - Question title: {self.question.title}: Answer title:{self.title[:15]}'
