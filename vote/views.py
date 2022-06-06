@@ -5,7 +5,7 @@ from .models import Vote
 from .serializers import *
 
 
-class VoteView(APIView):
+class VoteCreateView(APIView):
 
     def post(self, request):
         serializer = VoteSerializer(data=request.data)
@@ -24,3 +24,11 @@ class VoteListView(APIView):
             serializer.data,
             status=status.HTTP_200_OK
         )
+
+
+class VoteUserView(APIView):
+
+    def get(self, request, pk):
+        queryset = Vote.objects.filter(username__pk=self.request.user.id)
+        serializer = VoteSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
