@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-pd*a&w@-!ku5pe-e$21_^z8gkkk*5)_zgv*z0s%3ve29lknn@k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -75,8 +75,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'stackoverflow',
+        'USER': 'postgresql',
+        'PASSWORD': 'postgresql',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -109,7 +113,8 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+L10N = False
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -121,7 +126,7 @@ STATIC_URL = 'static/'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
+DATETIME_FORMAT = '%m/%d/%Y %H:%M'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 

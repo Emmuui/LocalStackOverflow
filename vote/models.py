@@ -1,15 +1,14 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericRelation
 from userapp.models import UserProfile
 
 
 class Vote(models.Model):
     """ Vote for question or answer """
     rating_choice = (
-        ('UP_VOTE', 1),
-        ('DOWN_VOTE', -1)
+        ('1', 1),
+        ('-1', -1)
     )
 
     username = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
