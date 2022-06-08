@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Question, Tag, Answer
+from .models import Question, Tag, Answer, Comment
+from generic_relations.relations import GenericRelatedField
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -49,3 +50,57 @@ class CreateAnswerSerializer(serializers.ModelSerializer):
         fields = ['username', 'title',
                   'description', 'question']
 
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+
+
+
+
+
+
+
+
+
+# Внизу тестовые классы
+class GenericField(serializers.RelatedField):
+
+    def to_representation(self, value):
+
+        if isinstance(value, Question):
+            return value.id
+        elif isinstance(value, Answer):
+            return value.id
+        raise Exception('Unexpected type of object')
+
+
+class CommentTestSerializer(serializers.ModelSerializer):
+    content_type = GenericField(source='content_object', read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ('username', 'text', 'content_type')
+
+
+""" Test class """
+class CommentRelatedSerializer(serializers.ModelSerializer):
+
+    content_object = GenericRelatedField({
+        Question: serializers.HyperlinkedRelatedField(
+            queryset=Question.objects.all(),
+            view_name='question-detail',
+
+        ),
+        Answer: serializers.HyperlinkedRelatedField(
+            queryset=Answer.objects.all(),
+            view_name='answer-detail',
+        ),
+    })
+
+    class Meta:
+        model = Comment
+        fields = ('username', 'text', 'content_object')

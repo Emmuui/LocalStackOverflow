@@ -1,10 +1,11 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Question, Tag, Answer
+from .models import Question, Tag, Answer, Comment
 from .serializers import (QuestionSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
-                          CreateAnswerSerializer)
+                          CreateAnswerSerializer, CommentSerializer,
+                          CommentRelatedSerializer)
 from userapp.models import UserProfile
 
 
@@ -17,7 +18,7 @@ class QuestionListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SingleQuestionView(APIView):
+class QuestionDetailView(APIView):
     """ Get single question """
 
     def get(self, request, pk):
@@ -88,11 +89,98 @@ class UserAnswerView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class AnswerDetailView(APIView):
+    """ Get answer by id """
+
+    def get(self, request, pk):
+        queryset = Answer.objects.get(pk=pk)
+        serializer = AnswerSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class CreateAnswerView(APIView):
     """ Create an answer to a question """
 
     def post(self, request):
-        serializer = AnswerSerializer(data=request.data)
+        serializer = CreateAnswerSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentListView(APIView):
+    """ List of all comments """
+
+    def get(self, request):
+        queryset = Comment.objects.all()
+        serializer = CommentSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateCommentView(APIView):
+    """ Create comment to an answer or a question """
+
+    def post(self, request):
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateCommentView(APIView):
+    """ Update comment """
+
+    def put(self, request, pk, format=None):
+        queryset = Comment.objects.get(pk=pk)
+        serializer = CommentSerializer(queryset, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteCommentView(APIView):
+    """ Delete comment """
+
+    def delete(self, request, pk, format=None):
+        queryset = Comment.objects.get(pk=pk)
+        queryset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DetailCommentView(APIView):
+    """ Detail single comment by id """
+
+    def get(self, request, pk):
+        queryset = Comment.objects.get(id=pk)
+        serializer = CommentSerializer(queryset)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+# Внизу классы которые не корректно работают
+class CommentRelatedView(APIView):
+    """ Test class """
+
+    def post(self, request):
+        serializer = CommentRelatedSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentTestRelatedView(APIView):
+    """ One more test class """
+
+    def post(self, request):
+        serializer = CommentRelatedSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

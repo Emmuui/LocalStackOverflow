@@ -20,8 +20,10 @@ class Comment(models.Model):
 
     username = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     text = models.TextField(max_length=1500)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
     content_type = models.ForeignKey(ContentType, null=True,
                                      blank=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(
