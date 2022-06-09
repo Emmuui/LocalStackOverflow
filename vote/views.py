@@ -30,7 +30,6 @@ class VoteListView(APIView):
 
 
 class VoteUserView(APIView):
-    permission_classes = (IsAuthenticated,)
 
     def get(self, request, pk):
         queryset = Vote.objects.filter(username__pk=self.request.user.id)

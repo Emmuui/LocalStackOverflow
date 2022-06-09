@@ -21,7 +21,7 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['username', 'title', 'description',
+        fields = ['title', 'description',
                   'tag']
 
 
@@ -30,7 +30,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['username', 'title', 'description',
+        fields = ['title', 'description',
                   'tag', 'created_at', 'updated_at']
 
 
@@ -39,7 +39,7 @@ class CreateQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['username', 'title', 'description', 'tag']
+        fields = ['title', 'description']
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -47,7 +47,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['username', 'title',
+        fields = ['user', 'title',
                   'description', 'question']
 
 
@@ -55,8 +55,7 @@ class CreateAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['username', 'title',
-                  'description', 'question']
+        fields = ['user', 'title', 'description', 'question']
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -64,6 +63,33 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = "__all__"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

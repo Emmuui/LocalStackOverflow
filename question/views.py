@@ -18,7 +18,7 @@ class UserQuestionListView(APIView):
     permission_classes = (IsAuthenticated, )
 
     def get(self, request, pk):
-        queryset = Question.objects.filter(username__pk=self.request.user.id)
+        queryset = Question.objects.filter(user__pk=self.request.user.id)
         serializer = QuestionSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -37,15 +37,23 @@ class QuestionCreateView(APIView):
     """ Create question view """
     permission_classes = (IsAuthenticated, )
 
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
+            'description': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
+        }
+    ))
+
     def check_rating(self):
-        qs = Question.objects.filter(username=self.request.user).count()
+        qs = Question.objects.filter(user=self.request.user).count()
         return qs
 
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
         print(self.check_rating())
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -60,17 +68,17 @@ class QuestionListView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class UpdateQuestionView(APIView):
+class QuestionUpdateView(APIView):
     """ Update question """
     permission_classes = (IsOwnerOnly, )
 
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
-        properties={'username': openapi.Schema(type=openapi.TYPE_STRING, description='int'),
-                    'title': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
+        properties={'title': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
                     'tag': openapi.Schema(type=openapi.TYPE_STRING, description='list'),
                     'description': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
     )
+
     def put(self, request, pk, format=None):
         queryset = Question.objects.get(pk=pk)
         serializer = QuestionSerializer(queryset, data=request.data)
@@ -80,7 +88,7 @@ class UpdateQuestionView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DeleteQuestionView(APIView):
+class QuestionDeleteView(APIView):
     """ Delete question """
 
     def delete(self, request, pk, format=None):
@@ -116,7 +124,7 @@ class TagCreateView(APIView):
 
 
 class TagUpdateView(APIView):
-    """ Create new tag """
+    """ Update current tag """
     permission_classes = (IsAdminUser,)
 
     @swagger_auto_schema(request_body=openapi.Schema(
@@ -145,8 +153,8 @@ class AnswerView(APIView):
 class UserAnswerView(APIView):
     """ Get user answer by his id """
 
-    def get(self, request, pk):
-        queryset = Answer.objects.filter(username__pk=self.request.user.id)
+    def get(self, request):
+        queryset = Answer.objects.filter(user__pk=self.request.user.id)
         serializer = AnswerSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -157,7 +165,7 @@ class AnswerDetailView(APIView):
 
     def get(self, request, pk):
         queryset = Answer.objects.get(pk=pk)
-        serializer = AnswerSerializer(queryset, many=True)
+        serializer = AnswerSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -165,8 +173,8 @@ class CreateAnswerView(APIView):
     """ Create an answer to a question """
     permission_classes = (IsAuthenticated,)
 
-    def rating_add(self, request):
-        user = UserProfile.objects.get(pk=request.user.username)
+    def add_rating_to_user(self, request):
+        user = UserProfile.objects.get(pk=request.user.id)
         user.rating += 15
         user.save()
         return user
@@ -174,8 +182,8 @@ class CreateAnswerView(APIView):
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
         if serializer.is_valid():
-            self.rating_add(request)
-            serializer.save()
+            self.add_rating_to_user(request)
+            serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -195,7 +203,7 @@ class CreateCommentView(APIView):
     def post(self, request):
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

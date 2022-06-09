@@ -35,7 +35,7 @@ class PutUserDetailView(APIView):
 
 class GetUserDetailView(APIView):
     """ All user can get detail view of current user by pk """
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAdminUser, IsAuthenticated)
 
     def get(self, request, pk, format=None):
         user = UserProfile.objects.filter(id=pk)
