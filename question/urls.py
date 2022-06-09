@@ -5,7 +5,7 @@ from .views import (UserQuestionListView, QuestionCreateView, TagView,
                     CommentListView, CreateCommentView, CommentRelatedView,
                     AnswerDetailView, CommentTestRelatedView, UpdateCommentView,
                     DeleteCommentView, DetailCommentView, QuestionUpdateView,
-                    QuestionDeleteView, TagUpdateView)
+                    QuestionDeleteView, TagUpdateView, TagDeleteView)
 
 urlpatterns = [
     path('question_list/user/<int:pk>', UserQuestionListView.as_view()),
@@ -18,6 +18,7 @@ urlpatterns = [
     path('tag/list', TagView.as_view()),
     path('tag/create', TagCreateView.as_view()),
     path('tag/update/<int:pk>', TagUpdateView.as_view()),
+    path('tag/delete/<int:pk>', TagDeleteView.as_view()),
 
     path('answer/list', AnswerView.as_view()),
     path('answer/user/', UserAnswerView.as_view()),

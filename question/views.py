@@ -140,6 +140,17 @@ class TagUpdateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class TagDeleteView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    """ Tag comment """
+
+    def delete(self, request, pk, format=None):
+        queryset = Tag.objects.get(pk=pk)
+        queryset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class AnswerView(APIView):
     """ Get all answer """
     permission_classes = (AllowAny,)
