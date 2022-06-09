@@ -1,11 +1,13 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import *
 from .models import Vote
 from .serializers import *
 
 
 class VoteCreateView(APIView):
+    permission_classes = (IsAuthenticated, )
 
     def post(self, request):
         serializer = VoteSerializer(data=request.data)
@@ -16,6 +18,7 @@ class VoteCreateView(APIView):
 
 
 class VoteListView(APIView):
+    permission_classes = (IsAdminUser, )
 
     def get(self, request):
         queryset = Vote.objects.all()
@@ -27,6 +30,7 @@ class VoteListView(APIView):
 
 
 class VoteUserView(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, pk):
         queryset = Vote.objects.filter(username__pk=self.request.user.id)

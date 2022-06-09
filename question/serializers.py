@@ -17,6 +17,14 @@ class TagCreateView(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class QuestionUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Question
+        fields = ['username', 'title', 'description',
+                  'tag']
+
+
 class QuestionSerializer(serializers.ModelSerializer):
     tag = TagSerializer(many=True)
 
@@ -93,7 +101,6 @@ class CommentRelatedSerializer(serializers.ModelSerializer):
         Question: serializers.HyperlinkedRelatedField(
             queryset=Question.objects.all(),
             view_name='question-detail',
-
         ),
         Answer: serializers.HyperlinkedRelatedField(
             queryset=Answer.objects.all(),

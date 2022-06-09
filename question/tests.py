@@ -1,3 +1,4 @@
 from django.test import TestCase
+from models import Question, Answer
 
-# Create your tests here.
+
