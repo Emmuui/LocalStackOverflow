@@ -51,7 +51,7 @@ class Question(models.Model):
     voting = GenericRelation(Vote)
 
     def __str__(self):
-        return f'Username: {self.user} - Title: {self.title[:15]}'
+        return f'Id: {self.id}, Username: {self.user}, Title: {self.title[:15]}'
 
 
 class Answer(models.Model):
@@ -67,7 +67,8 @@ class Answer(models.Model):
     voting = GenericRelation(Vote)
 
     def __str__(self):
-        return f'Username: {self.user} - Question title: {self.question.title}: Answer title:{self.title[:15]}'
+        return f'Id: {self.id}, Username: {self.user},' \
+               f' Question title: {self.question.title}, Answer title:{self.title[:15]}'
 
     class Meta:
         verbose_name_plural = 'Answers'

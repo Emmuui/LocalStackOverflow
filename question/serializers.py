@@ -1,6 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from .models import Question, Tag, Answer, Comment
-from generic_relations.relations import GenericRelatedField
+
+
+CONTENT_TYPES_MODEL = ['question', 'answer']
+CONTENT_TYPES_PK = [8, 11]
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -78,81 +82,17 @@ class CreateAnswerSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    content_type = serializers.SlugRelatedField(queryset=ContentType.objects.filter(model__in=CONTENT_TYPES_MODEL),
+                                                slug_field='model')
+    object_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Comment
         fields = "__all__"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Внизу тестовые классы
-class GenericField(serializers.RelatedField):
-
-    def to_representation(self, value):
-
-        if isinstance(value, Question):
-            return value.id
-        elif isinstance(value, Answer):
-            return value.id
-        raise Exception('Unexpected type of object')
-
-
-class CommentTestSerializer(serializers.ModelSerializer):
-    content_type = GenericField(source='content_object', read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ('username', 'text', 'content_type')
-
-
-""" Test class """
-class CommentRelatedSerializer(serializers.ModelSerializer):
-
-    content_object = GenericRelatedField({
-        Question: serializers.HyperlinkedRelatedField(
-            queryset=Question.objects.all(),
-            view_name='question-detail',
-        ),
-        Answer: serializers.HyperlinkedRelatedField(
-            queryset=Answer.objects.all(),
-            view_name='answer-detail',
-        ),
-    })
-
-    class Meta:
-        model = Comment
-        fields = ('username', 'text', 'content_object')
+    def validate(self, attrs):
+        try:
+            attrs['content_object'] = attrs['content_type'].model_class().objects.get(pk=attrs['object_id'])
+        except:
+            raise serializers.ValidationError({'object_id': ['Invalid pk "'+str(attrs['object_id'])+'" - object does not exist.']})
+        return attrs

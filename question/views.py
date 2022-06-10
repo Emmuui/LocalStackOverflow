@@ -5,10 +5,9 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from .models import Question, Tag, Answer, Comment
 from .serializers import (QuestionSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
-                          CreateAnswerSerializer, CommentSerializer,
-                          CommentRelatedSerializer, QuestionUpdateSerializer)
+                          CreateAnswerSerializer, CommentSerializer)
+from .services import add_rating_to_user
 from userapp.permissions import IsOwnerOnly
-from userapp.models import UserProfile
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
@@ -37,9 +36,9 @@ class QuestionCreateView(APIView):
     """ Create question view """
     permission_classes = (IsAuthenticated, )
 
-    def check_rating(self):
-        qs = Question.objects.filter(user=self.request.user).count()
-        return qs
+    # def check_rating(self):
+    #     qs = Question.objects.filter(user=self.request.user).count()
+    #     return qs
 
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
@@ -49,7 +48,7 @@ class QuestionCreateView(APIView):
     )
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
-        print(self.check_rating())
+        add_rating_to_user(self.request.user)
         if serializer.is_valid():
             serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -179,13 +178,7 @@ class AnswerDetailView(APIView):
 
 class CreateAnswerView(APIView):
     """ Create an answer to a question """
-    permission_classes = (IsAuthenticated,)
-
-    def add_rating_to_user(self, request):
-        user = UserProfile.objects.get(pk=request.user.id)
-        user.rating += 15
-        user.save()
-        return user
+    permission_classes = (IsAuthenticated, )
 
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
@@ -196,7 +189,7 @@ class CreateAnswerView(APIView):
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
         if serializer.is_valid():
-            self.add_rating_to_user(request)
+            add_rating_to_user(self.request.user)
             serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -223,6 +216,7 @@ class CreateCommentView(APIView):
     def post(self, request):
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
+            add_rating_to_user(self.request.user)
             serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -257,29 +251,3 @@ class DetailCommentView(APIView):
         queryset = Comment.objects.get(id=pk)
         serializer = CommentSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-
-# Внизу классы которые не корректно работают
-class CommentRelatedView(APIView):
-    """ Test class """
-
-    def post(self, request):
-        serializer = CommentRelatedSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CommentTestRelatedView(APIView):
-    """ One more test class """
-
-    def post(self, request):
-        serializer = CommentRelatedSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

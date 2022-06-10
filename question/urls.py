@@ -2,10 +2,10 @@ from django.urls import path
 from .views import (UserQuestionListView, QuestionCreateView, TagView,
                     QuestionDetailView, TagCreateView, QuestionListView,
                     AnswerView, UserAnswerView, CreateAnswerView,
-                    CommentListView, CreateCommentView, CommentRelatedView,
-                    AnswerDetailView, CommentTestRelatedView, UpdateCommentView,
-                    DeleteCommentView, DetailCommentView, QuestionUpdateView,
-                    QuestionDeleteView, TagUpdateView, TagDeleteView)
+                    CommentListView, CreateCommentView, AnswerDetailView,
+                    UpdateCommentView, DeleteCommentView, DetailCommentView,
+                    QuestionUpdateView, QuestionDeleteView, TagUpdateView,
+                    TagDeleteView)
 
 urlpatterns = [
     path('question/user/<int:pk>/', UserQuestionListView.as_view()),
@@ -30,9 +30,4 @@ urlpatterns = [
     path('comment/create/', CreateCommentView.as_view()),
     path('comment/update/<int:pk>/', UpdateCommentView.as_view()),
     path('comment/delete/<int:pk>/', DeleteCommentView.as_view()),
-
-    path('test_view/', CommentRelatedView.as_view()),
-    path('comment_test_view/', CommentTestRelatedView.as_view())
 ]
-
-
