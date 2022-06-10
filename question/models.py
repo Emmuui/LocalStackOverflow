@@ -24,7 +24,7 @@ class Comment(models.Model):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-
+    voting = GenericRelation(Vote)
     content_type = models.ForeignKey(ContentType, null=True,
                                      blank=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(
@@ -34,7 +34,7 @@ class Comment(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return self.text[:20]
+        return f'{self.id} - {self.text[:20]}'
 
 
 class Question(models.Model):

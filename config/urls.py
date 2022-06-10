@@ -32,8 +32,8 @@ urlpatterns = [
     path('auth/', include('djoser.urls.jwt')),
     path('api-auth/', include('rest_framework.urls')),
 
-    path('stackoverflow/', include('userapp.urls')),
-    path('stackoverflow/', include('question.urls')),
-    path('stackoverflow/', include('vote.urls')),
+    path('user/', include('userapp.urls')),
+    path('question/', include('question.urls')),
+    path('vote/', include('vote.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

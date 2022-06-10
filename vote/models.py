@@ -1,6 +1,8 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
 from userapp.models import UserProfile
 
 
@@ -11,7 +13,7 @@ class Vote(models.Model):
         ('-1', -1)
     )
 
-    username = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     choose_rating = models.CharField(max_length=50, choices=rating_choice)
     created_at = models.DateTimeField(auto_now=True)
 
@@ -24,4 +26,4 @@ class Vote(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return f'{self.username} - {self.choose_rating}'
+        return f'{self.id} - {self.user} - {self.choose_rating}'

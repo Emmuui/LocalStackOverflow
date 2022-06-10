@@ -2,14 +2,14 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from .models import Question, Tag, Answer, Comment
-from .serializers import (QuestionSerializer, CreateQuestionSerializer,
-                          TagSerializer, AnswerSerializer,
-                          CreateAnswerSerializer, CommentSerializer)
-from .services import add_rating_to_user
 from userapp.permissions import IsOwnerOnly
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from .models import Question, Tag, Answer, Comment
+from .serializers import (QuestionSerializer, CreateQuestionSerializer,
+                          TagSerializer, AnswerSerializer,
+                          CreateAnswerSerializer, CommentCreateSerializer, CommentSerializer)
+from .services import add_rating_to_user
 
 
 class UserQuestionListView(APIView):
@@ -35,10 +35,6 @@ class QuestionDetailView(APIView):
 class QuestionCreateView(APIView):
     """ Create question view """
     permission_classes = (IsAuthenticated, )
-
-    # def check_rating(self):
-    #     qs = Question.objects.filter(user=self.request.user).count()
-    #     return qs
 
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
@@ -214,7 +210,7 @@ class CreateCommentView(APIView):
                     'object_id': openapi.Schema(type=openapi.TYPE_STRING, description='object_id')}
     ))
     def post(self, request):
-        serializer = CommentSerializer(data=request.data)
+        serializer = CommentCreateSerializer(data=request.data)
         if serializer.is_valid():
             add_rating_to_user(self.request.user)
             serializer.save(user=self.request.user)
@@ -228,7 +224,7 @@ class UpdateCommentView(APIView):
 
     def put(self, request, pk, format=None):
         queryset = Comment.objects.get(pk=pk)
-        serializer = CommentSerializer(queryset, data=request.data)
+        serializer = CommentCreateSerializer(queryset, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

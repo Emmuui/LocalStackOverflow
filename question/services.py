@@ -1,4 +1,5 @@
 from userapp.models import UserProfile, Rank
+from .models import Question
 
 
 def add_rating_to_user(instance):
@@ -15,3 +16,4 @@ def add_rating_to_user(instance):
         user.rank = ranks.get(name='Pro')
     user.save()
     return user
+
