@@ -34,14 +34,20 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user.set_password(validated_data['password'])
         user.save()
-
         return user
 
 
 class UserListSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
 
     class Meta:
         model = UserProfile
         fields = ['username', 'email', 'first_name', 'last_name', 'avatar']
 
 
+class ImageUploadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ['avatar', ]

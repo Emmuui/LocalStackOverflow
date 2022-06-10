@@ -37,18 +37,16 @@ class QuestionCreateView(APIView):
     """ Create question view """
     permission_classes = (IsAuthenticated, )
 
-    @swagger_auto_schema(request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'title': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
-            'description': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
-        }
-    ))
-
     def check_rating(self):
         qs = Question.objects.filter(user=self.request.user).count()
         return qs
 
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={'title': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
+                    'tag': openapi.Schema(type=openapi.TYPE_STRING, description='list'),
+                    'description': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
+    )
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
         print(self.check_rating())
@@ -78,7 +76,6 @@ class QuestionUpdateView(APIView):
                     'tag': openapi.Schema(type=openapi.TYPE_STRING, description='list'),
                     'description': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
     )
-
     def put(self, request, pk, format=None):
         queryset = Question.objects.get(pk=pk)
         serializer = QuestionSerializer(queryset, data=request.data)
@@ -190,6 +187,12 @@ class CreateAnswerView(APIView):
         user.save()
         return user
 
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={'title': openapi.Schema(type=openapi.TYPE_STRING, description='title'),
+                    'description': openapi.Schema(type=openapi.TYPE_STRING, description='description'),
+                    'question': openapi.Schema(type=openapi.TYPE_STRING, description='question')}
+    ))
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
         if serializer.is_valid():
@@ -211,6 +214,12 @@ class CommentListView(APIView):
 class CreateCommentView(APIView):
     """ Create comment to an answer or a question """
 
+    @swagger_auto_schema(request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={'text': openapi.Schema(type=openapi.TYPE_STRING, description='text'),
+                    'content_type': openapi.Schema(type=openapi.TYPE_STRING, description='content_type'),
+                    'object_id': openapi.Schema(type=openapi.TYPE_STRING, description='object_id')}
+    ))
     def post(self, request):
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
@@ -223,11 +232,6 @@ class UpdateCommentView(APIView):
     """ Update comment """
     permission_classes = (IsOwnerOnly, IsAdminUser)
 
-    @swagger_auto_schema(request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={'username': openapi.Schema(type=openapi.TYPE_STRING, description='int'),
-                    'text': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
-    )
     def put(self, request, pk, format=None):
         queryset = Comment.objects.get(pk=pk)
         serializer = CommentSerializer(queryset, data=request.data)

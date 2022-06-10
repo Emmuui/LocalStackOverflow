@@ -10,3 +10,5 @@ media/
 .env.dev/
 
 db.sqlite3
+
+toDo.txt/

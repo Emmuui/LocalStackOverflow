@@ -18,11 +18,21 @@ class TagCreateView(serializers.ModelSerializer):
 
 
 class QuestionUpdateSerializer(serializers.ModelSerializer):
+    tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
+                                             write_only=True, many=True)
+    description = serializers.CharField(required=False)
 
     class Meta:
         model = Question
         fields = ['title', 'description',
                   'tag']
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tag')
+        question = Question.objects.create(**validated_data)
+        for tag in tags:
+            question.tag.add(tag)
+        return question
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -30,16 +40,25 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['title', 'description',
+        fields = ['id', 'title', 'description',
                   'tag', 'created_at', 'updated_at']
 
 
 class CreateQuestionSerializer(serializers.ModelSerializer):
+    tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
+                                             write_only=True, many=True)
     description = serializers.CharField(required=False)
 
     class Meta:
         model = Question
-        fields = ['title', 'description']
+        fields = ['title', 'tag', 'description']
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tag')
+        question = Question.objects.create(**validated_data)
+        for tag in tags:
+            question.tag.add(tag)
+        return question
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -47,7 +66,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ['user', 'title',
+        fields = ['id', 'user', 'title',
                   'description', 'question']
 
 
