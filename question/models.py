@@ -24,12 +24,11 @@ class Comment(models.Model):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
     voting = GenericRelation(Vote)
-    content_type = models.ForeignKey(ContentType, null=True,
-                                     blank=True, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType,  on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(
         verbose_name='related object',
-        null=True,
     )
     content_object = GenericForeignKey('content_type', 'object_id')
 
@@ -47,6 +46,7 @@ class Question(models.Model):
     tag = models.ManyToManyField(Tag, verbose_name='User`s tag(s)', null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+    vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
     comment = GenericRelation(Comment)
     voting = GenericRelation(Vote)
 
@@ -63,6 +63,7 @@ class Answer(models.Model):
     description = models.TextField(max_length=2000, null=True,
                                    blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
     comment = GenericRelation(Comment)
     voting = GenericRelation(Vote)
 

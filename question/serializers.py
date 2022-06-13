@@ -37,19 +37,11 @@ class QuestionSerializer(serializers.ModelSerializer):
     """ Question serializer with one additional field for rating """
 
     tag = TagSerializer(many=True)
-    rating = serializers.SerializerMethodField('check_rating')
 
     class Meta:
         model = Question
         fields = ['id', 'title', 'description',
-                  'tag', 'rating', 'created_at', 'updated_at']
-
-    def check_rating(self, question):
-        question = Question.objects.get(pk=question.pk)
-        positive_rating = question.voting.filter(choose_rating=1).count()
-        negative_rating = question.voting.filter(choose_rating=-1).count()
-        rating = positive_rating + (negative_rating * -1)
-        return rating
+                  'tag', 'vote_count', 'created_at', 'updated_at']
 
 
 class CreateQuestionSerializer(serializers.ModelSerializer):
@@ -75,19 +67,11 @@ class AnswerSerializer(serializers.ModelSerializer):
     """ Answer serializer with one additional field for rating """
 
     question = QuestionSerializer()
-    rating = serializers.SerializerMethodField('check_rating')
 
     class Meta:
         model = Answer
         fields = ['id', 'user', 'title',
-                  'description', 'rating', 'question']
-
-    def check_rating(self, answer):
-        answer = Answer.objects.get(pk=answer.pk)
-        positive_rating = answer.voting.filter(choose_rating=1).count()
-        negative_rating = answer.voting.filter(choose_rating=-1).count()
-        rating = positive_rating + (negative_rating * -1)
-        return rating
+                  'description', 'vote_count', 'question']
 
 
 class CreateAnswerSerializer(serializers.ModelSerializer):
@@ -104,7 +88,6 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     content_type = serializers.SlugRelatedField(queryset=ContentType.objects.filter(model__in=CONTENT_TYPES_MODEL),
                                                 slug_field='model')
     object_id = serializers.IntegerField(write_only=True)
-    rating = serializers.SerializerMethodField('check_rating')
 
     class Meta:
         model = Comment
@@ -121,18 +104,10 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """ Comment serializer with one additional field for rating """
 
-    rating = serializers.SerializerMethodField('check_rating')
-
     class Meta:
         model = Comment
         fields = ['user', 'text', 'parent',
-                  'created_at', 'updated_at', 'rating',
+                  'created_at', 'updated_at', 'vote_count',
                   'content_type', 'object_id']
 
-    def check_rating(self, comment):
-        comment = Comment.objects.get(pk=comment.pk)
-        positive_rating = comment.voting.filter(choose_rating=1).count()
-        negative_rating = comment.voting.filter(choose_rating=-1).count()
-        rating = positive_rating + (negative_rating * -1)
-        return rating
 

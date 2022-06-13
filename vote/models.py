@@ -10,6 +10,7 @@ class Vote(models.Model):
     """ Vote for question or answer """
     rating_choice = (
         ('1', 1),
+        ('0', 0),
         ('-1', -1)
     )
 
@@ -17,13 +18,15 @@ class Vote(models.Model):
     choose_rating = models.CharField(max_length=50, choices=rating_choice)
     created_at = models.DateTimeField(auto_now=True)
 
-    content_type = models.ForeignKey(ContentType, null=True,
-                                     blank=True, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(
         verbose_name='related object',
-        null=True,
     )
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
         return f'{self.id} - {self.user} - {self.choose_rating}'
+
+    def save(self, *args, **kwargs):
+
+        super().save(*args, **kwargs)

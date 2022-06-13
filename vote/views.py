@@ -1,9 +1,11 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import *
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from question.services import vote
 from .models import Vote
 from .serializers import VoteSerializer
 
@@ -19,6 +21,7 @@ class VoteCreateView(APIView):
     )
     def post(self, request):
         serializer = VoteSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
