@@ -24,8 +24,6 @@ class CountSystem:
         values = self.obj.voting.values_list('user', flat=True)
         if self.user.id in values:
             raise ValidationError('You have already voted')
-        else:
-            self.count_rating_by_created_record()
 
     def count_vote(self):
         positive_rating = self.obj.voting.filter(choose_rating=1).count()
@@ -36,17 +34,12 @@ class CountSystem:
         self.count_user_rating()
         return self.obj
 
-    def count_rating_by_created_record(self):
+    def count_user_rating(self):
         question = Question.objects.filter(user=self.user.id).count()
         answer = Answer.objects.filter(user=self.user.id).count()
         comment = Comment.objects.filter(user=self.user.id).count()
-        self.user.rating = 10 * (question + answer + comment)
-        self.user.save()
-        return self.user
-
-    def count_user_rating(self):
-        self.validate_user()
-        self.user.rating = self.user.rating + self.obj.vote_count
+        self.local_rating = 10 * (question + answer + comment)
+        self.user.rating = self.local_rating + self.obj.vote_count
         self.user.save()
         return self.user
 

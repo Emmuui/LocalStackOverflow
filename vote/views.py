@@ -24,6 +24,7 @@ class VoteCreateView(APIView):
         serializer = VoteSerializer(data=request.data)
         print(f'request data = {request.data.get("content_type")}')
         if serializer.is_valid():
+            count.validate_user()
             serializer.save(user=self.request.user)
             count.count_vote()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
