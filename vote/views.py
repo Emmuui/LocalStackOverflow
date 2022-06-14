@@ -1,13 +1,12 @@
-from django.contrib.contenttypes.models import ContentType
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import *
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from question.services import vote
 from .models import Vote
 from .serializers import VoteSerializer
+from .services import CountSystem
 
 
 class VoteCreateView(APIView):
@@ -20,10 +19,13 @@ class VoteCreateView(APIView):
                     'object_id': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
     )
     def post(self, request):
+        count = CountSystem(content_type=request.data['content_type'], obj_id=request.data['object_id'],
+                            user=request.user)
         serializer = VoteSerializer(data=request.data)
-        print(request.data)
+        print(f'request data = {request.data.get("content_type")}')
         if serializer.is_valid():
             serializer.save(user=self.request.user)
+            count.count_vote()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

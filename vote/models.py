@@ -28,5 +28,4 @@ class Vote(models.Model):
         return f'{self.id} - {self.user} - {self.choose_rating}'
 
     def save(self, *args, **kwargs):
-
         super().save(*args, **kwargs)

@@ -9,7 +9,7 @@ from .models import Question, Tag, Answer, Comment
 from .serializers import (QuestionSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
                           CreateAnswerSerializer, CommentCreateSerializer, CommentSerializer)
-from .services import add_rating_to_user
+from vote.services import CountSystem
 
 
 class UserQuestionListView(APIView):
@@ -44,9 +44,11 @@ class QuestionCreateView(APIView):
     )
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
-        add_rating_to_user(self.request.user)
+        instance = CountSystem(content_type=None, obj_id=None,
+                               user=request.user)
         if serializer.is_valid():
             serializer.save(user=self.request.user)
+            instance.count_rating_by_created_record()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -184,9 +186,11 @@ class CreateAnswerView(APIView):
     ))
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
+        instance = CountSystem(content_type=None, obj_id=None,
+                               user=request.user)
         if serializer.is_valid():
-            add_rating_to_user(self.request.user)
             serializer.save(user=self.request.user)
+            instance.count_rating_by_created_record()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -211,9 +215,11 @@ class CreateCommentView(APIView):
     ))
     def post(self, request):
         serializer = CommentCreateSerializer(data=request.data)
+        instance = CountSystem(content_type=None,
+                               obj_id=None, user=request.user)
         if serializer.is_valid():
-            add_rating_to_user(self.request.user)
             serializer.save(user=self.request.user)
+            instance.count_rating_by_created_record()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
