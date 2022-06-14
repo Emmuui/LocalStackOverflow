@@ -50,3 +50,16 @@ class VoteUserView(APIView):
         serializer = VoteSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class VoteUpdateView(APIView):
+
+    def put(self, request, pk, format=None):
+        count = CountSystem(content_type=request.data['content_type'], obj_id=request.data['object_id'],
+                            user=request.user)
+        queryset = Vote.objects.get(pk=pk)
+        serializer = VoteSerializer(queryset, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            count.count_vote()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

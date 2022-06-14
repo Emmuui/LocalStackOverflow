@@ -40,18 +40,16 @@ class CountSystem:
         comment = Comment.objects.filter(user=self.user.id).count()
         self.local_rating = 10 * (question + answer + comment)
         self.user.rating = self.local_rating + self.obj.vote_count
+        if self.user.rating <= 100:
+            self.user.rank = Rank.objects.get(name=self.query_rank[0])
+        elif 100 < self.user.rating <= 200:
+            self.user.rank = Rank.objects.get(name=self.query_rank[1])
+        elif 300 < self.user.rating < 400:
+            self.user.rank = Rank.objects.get(name=self.query_rank[2])
+        elif 400 < self.user.rating <= 500:
+            self.user.rank = Rank.objects.get(name=self.query_rank[3])
+        elif self.user.rating > 500:
+            self.user.rank = Rank.objects.get(name=self.query_rank[4])
+            self.user.is_staff = True
         self.user.save()
         return self.user
-
-
-
-
-
-
-
-
-
-
-
-
-
