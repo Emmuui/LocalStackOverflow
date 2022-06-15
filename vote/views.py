@@ -19,14 +19,11 @@ class VoteCreateView(APIView):
                     'object_id': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
     )
     def post(self, request):
-        count = CountSystem(content_type=request.data['content_type'], obj_id=request.data['object_id'],
-                            user=request.user)
+        count = CountSystem(user=request.user, serializer=VoteSerializer(data=request.data), data=request.data)
         serializer = VoteSerializer(data=request.data)
         print(f'request data = {request.data.get("content_type")}')
         if serializer.is_valid():
-            count.validate_user()
-            serializer.save(user=self.request.user)
-            count.count_vote()
+            count.run_system()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -54,12 +51,12 @@ class VoteUserView(APIView):
 class VoteUpdateView(APIView):
 
     def put(self, request, pk, format=None):
-        count = CountSystem(content_type=request.data['content_type'], obj_id=request.data['object_id'],
-                            user=request.user)
         queryset = Vote.objects.get(pk=pk)
+        count = CountSystem(content_type=request.data['content_type'], obj_id=request.data['object_id'],
+                            user=request.user, serializer=VoteSerializer(queryset, data=request.data))
         serializer = VoteSerializer(queryset, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            count.count_vote()
+            count.run_system()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

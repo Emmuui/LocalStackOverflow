@@ -7,6 +7,9 @@ from .models import Vote
 def vote_pre_save_signal(sender, instance, **kwargs):
 
     if instance.id:
+        print(f'Just instance = {instance}')
+        print(f'Instance id = {instance.id}')
+        print(f'Instance choose rating = {instance.choose_rating}')
         current = instance
         print(f'New rating =  {current.choose_rating}')
         previous = Vote.objects.get(id=instance.id)

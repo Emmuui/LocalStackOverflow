@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
-from userapp.models import UserProfile
+from datetime import datetime
 from vote.models import Vote
 
 
@@ -22,7 +22,7 @@ class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     text = models.TextField(max_length=1500)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=datetime.now, editable=False)
     updated_at = models.DateTimeField(auto_now_add=True)
     vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
     voting = GenericRelation(Vote)
@@ -44,7 +44,7 @@ class Question(models.Model):
     description = models.TextField(verbose_name='Description of question',
                                    max_length=2000, null=True, blank=True)
     tag = models.ManyToManyField(Tag, verbose_name='User`s tag(s)', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=datetime.now, editable=False)
     updated_at = models.DateTimeField(auto_now_add=True)
     vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
     comment = GenericRelation(Comment)
@@ -64,6 +64,8 @@ class Answer(models.Model):
                                    blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
+    created_at = models.DateTimeField(default=datetime.now, editable=False)
+    updated_at = models.DateTimeField(auto_now_add=True)
     comment = GenericRelation(Comment)
     voting = GenericRelation(Vote)
 
