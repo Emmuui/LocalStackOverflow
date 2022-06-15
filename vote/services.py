@@ -14,6 +14,7 @@ class CountSystem:
             'answer': Answer,
             'comment': Comment
         }
+        self.mult_by = 10
         self.local_rating = 0
         if self.content_type and self.obj_id is not None:
             self.obj = self.model[self.content_type].objects.get(pk=self.obj_id)
@@ -38,8 +39,9 @@ class CountSystem:
         question = Question.objects.filter(user=self.user.id).count()
         answer = Answer.objects.filter(user=self.user.id).count()
         comment = Comment.objects.filter(user=self.user.id).count()
-        self.local_rating = 10 * (question + answer + comment)
-        self.user.rating = self.local_rating + self.obj.vote_count
+        self.local_rating = self.mult_by * (question + answer + comment)
+        self.user.rating = self.local_rating + self.obj.vote_count + 50
+
         if self.user.rating <= 100:
             self.user.rank = Rank.objects.get(name=self.query_rank[0])
         elif 100 < self.user.rating <= 200:
@@ -51,5 +53,11 @@ class CountSystem:
         elif self.user.rating > 500:
             self.user.rank = Rank.objects.get(name=self.query_rank[4])
             self.user.is_staff = True
+
+        self.user.save()
+        return self.user
+
+    def one_time_add(self):
+        self.user.rating += 10
         self.user.save()
         return self.user

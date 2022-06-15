@@ -45,6 +45,8 @@ class QuestionCreateView(APIView):
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
         if serializer.is_valid():
+            i = CountSystem(content_type=None, obj_id=None, user=self.request.user)
+            i.one_time_add()
             serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -184,6 +186,8 @@ class CreateAnswerView(APIView):
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
         if serializer.is_valid():
+            i = CountSystem(content_type=None, obj_id=None, user=self.request.user)
+            i.one_time_add()
             serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -210,6 +214,8 @@ class CreateCommentView(APIView):
     def post(self, request):
         serializer = CommentCreateSerializer(data=request.data)
         if serializer.is_valid():
+            i = CountSystem(content_type=None, obj_id=None, user=self.request.user)
+            i.one_time_add()
             serializer.save(user=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
