@@ -5,7 +5,7 @@ from .models import Vote
 CONTENT_TYPES_MODEL = ['question', 'answer', 'comment']
 
 
-class VoteSerializer(serializers.ModelSerializer):
+class CreateVoteSerializer(serializers.ModelSerializer):
     content_type = serializers.SlugRelatedField(queryset=ContentType.objects.filter(model__in=CONTENT_TYPES_MODEL),
                                                 slug_field='model')
     object_id = serializers.IntegerField(write_only=True)

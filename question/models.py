@@ -5,6 +5,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
 from datetime import datetime
 from vote.models import Vote
+from django.utils import timezone
+
+tz = timezone.get_default_timezone()
 
 
 class Tag(models.Model):
@@ -22,7 +25,7 @@ class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     text = models.TextField(max_length=1500)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
-    created_at = models.DateTimeField(default=datetime.now, editable=False)
+    created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
     voting = GenericRelation(Vote)
@@ -33,7 +36,8 @@ class Comment(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
 
     def __str__(self):
-        return f'{self.id} - {self.text[:20]}'
+        return f'Id: {self.id}, Text: {self.text[:20]} ,' \
+               f' Created at: {self.created_at.astimezone(tz).strftime("%d.%m.%Y %H:%M")}'
 
 
 class Question(models.Model):
@@ -44,14 +48,15 @@ class Question(models.Model):
     description = models.TextField(verbose_name='Description of question',
                                    max_length=2000, null=True, blank=True)
     tag = models.ManyToManyField(Tag, verbose_name='User`s tag(s)', null=True, blank=True)
-    created_at = models.DateTimeField(default=datetime.now, editable=False)
+    created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
     comment = GenericRelation(Comment)
     voting = GenericRelation(Vote)
 
     def __str__(self):
-        return f'Id: {self.id}, Username: {self.user}, Title: {self.title[:15]}'
+        return f'Id: {self.id}, Username: {self.user}, Title: {self.title[:15]} ,' \
+               f' Created at {self.created_at.astimezone(tz).strftime("%d.%m.%Y %H:%M")}'
 
 
 class Answer(models.Model):
@@ -64,17 +69,15 @@ class Answer(models.Model):
                                    blank=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     vote_count = models.IntegerField(verbose_name='Sum of calculated votes', default=0)
-    created_at = models.DateTimeField(default=datetime.now, editable=False)
+    created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     comment = GenericRelation(Comment)
     voting = GenericRelation(Vote)
 
     def __str__(self):
         return f'Id: {self.id}, Username: {self.user},' \
-               f' Question title: {self.question.title}, Answer title:{self.title[:15]}'
+               f' Question title: {self.question.title}, Answer title:{self.title[:15]} ,' \
+               f' Created at {self.created_at.astimezone(tz).strftime("%d.%m.%Y %H:%M")}'
 
     class Meta:
         verbose_name_plural = 'Answers'
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)

@@ -9,7 +9,7 @@ from .models import Question, Tag, Answer, Comment
 from .serializers import (QuestionSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
                           CreateAnswerSerializer, CommentCreateSerializer, CommentSerializer)
-from vote.services import CountSystem, one_time_add
+from vote.services import CreateRecord, UserRating
 
 
 class UserQuestionListView(APIView):
@@ -44,11 +44,12 @@ class QuestionCreateView(APIView):
     )
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
+        s = CreateRecord(user=request.user, data=serializer)
+        s1 = UserRating(user=request.user)
         if serializer.is_valid():
-            one_time_add(self.request.user)
-            serializer.save(user=self.request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            s.validate_time_create()
+            s1.count_user_rating()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class QuestionListView(APIView):
@@ -184,10 +185,9 @@ class CreateAnswerView(APIView):
     ))
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
+        s = CreateRecord(user=request.user, data=request.data, serializer=serializer)
         if serializer.is_valid():
-            one_time_add(self.request.user)
-            serializer.save(user=self.request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            s.validate_time_create()
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -211,10 +211,9 @@ class CreateCommentView(APIView):
     ))
     def post(self, request):
         serializer = CommentCreateSerializer(data=request.data)
+        s = CreateRecord(user=request.user, data=request.data, serializer=serializer)
         if serializer.is_valid():
-            one_time_add(self.request.user)
-            serializer.save(user=self.request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            s.validate_time_create()
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

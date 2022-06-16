@@ -5,7 +5,7 @@ from rest_framework.permissions import *
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from .models import Vote
-from .serializers import VoteSerializer
+from .serializers import CreateVoteSerializer
 from .services import CountSystem
 
 
@@ -19,13 +19,11 @@ class VoteCreateView(APIView):
                     'object_id': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
     )
     def post(self, request):
-        count = CountSystem(user=request.user, serializer=VoteSerializer(data=request.data), data=request.data)
-        serializer = VoteSerializer(data=request.data)
-        print(f'request data = {request.data.get("content_type")}')
-        if serializer.is_valid():
-            count.run_system()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CreateVoteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        count = CountSystem(user=self.request.user, data=serializer.validated_data)
+        count.run_system()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class VoteListView(APIView):
@@ -33,7 +31,7 @@ class VoteListView(APIView):
 
     def get(self, request):
         queryset = Vote.objects.all()
-        serializer = VoteSerializer(queryset, many=True)
+        serializer = CreateVoteSerializer(queryset, many=True)
         return Response(
             serializer.data,
             status=status.HTTP_200_OK
@@ -44,19 +42,15 @@ class VoteUserView(APIView):
 
     def get(self, request, pk):
         queryset = Vote.objects.filter(username__pk=self.request.user.id)
-        serializer = VoteSerializer(queryset, many=True)
+        serializer = CreateVoteSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class VoteUpdateView(APIView):
 
-    def put(self, request, pk, format=None):
-        queryset = Vote.objects.get(pk=pk)
-        count = CountSystem(content_type=request.data['content_type'], obj_id=request.data['object_id'],
-                            user=request.user, serializer=VoteSerializer(queryset, data=request.data))
-        serializer = VoteSerializer(queryset, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            count.run_system()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request):
+        serializer = CreateVoteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        count = CountSystem(user=self.request.user, data=serializer.validated_data)
+        count.update_vote()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
