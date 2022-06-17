@@ -13,6 +13,16 @@ class TagSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class OutputQuestionSerializer(serializers.ModelSerializer):
+    tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
+                                             write_only=True, many=True)
+    description = serializers.CharField(required=False)
+
+    class Meta:
+        model = Question
+        fields = ['user', 'title', 'tag', 'description', 'created_at']
+
+
 class QuestionUpdateSerializer(serializers.ModelSerializer):
     """ Question serializer for update view  """
 

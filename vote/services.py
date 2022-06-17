@@ -40,13 +40,16 @@ class CountSystem:
         if self.user.id in values:
             raise serializers.ValidationError('You have already voted')
         else:
-            self.obj = Vote.objects.create(
-                user=self.user,
-                content_type=self.data['content_type'],
-                object_id=self.data['object_id'],
-                choose_rating=self.data['choose_rating']
-            )
-            self.calculate_vote()
+            self.create_vote()
+
+    def create_vote(self):
+        self.obj = Vote.objects.create(
+            user=self.user,
+            content_type=self.data['content_type'],
+            object_id=self.data['object_id'],
+            choose_rating=self.data['choose_rating']
+        )
+        self.calculate_vote()
 
     def calculate_vote(self):
         if self.obj:
@@ -57,35 +60,3 @@ class CountSystem:
 
     def run_system(self):
         self.validate_user()
-
-
-class UserRating:
-
-    def __init__(self, user):
-        self.user = user
-        self.mult_by = 10
-        self.local_rating = 0
-
-    def count_user_rating(self):
-        question = Question.objects.filter(user=self.user.id)
-        answer = Answer.objects.filter(user=self.user.id)
-        comment = Comment.objects.filter(user=self.user.id)
-        print(question.values_list('vote_count', flat=True))
-        a = question.values_list('vote_count', flat=True),
-
-        self.local_rating = self.mult_by * (question.count() + answer.count() + comment.count())
-        self.user.rating = self.local_rating + 50
-
-        if self.user.rating <= 100:
-            self.user.rank = 'NEW'
-        elif 100 < self.user.rating <= 300:
-            self.user.rank = 'MIDL'
-        elif 300 < self.user.rating <= 500:
-            self.user.rank = 'PRO'
-        elif self.user.rating > 500:
-            self.user.is_staff = True
-        self.user.save()
-        return self.user
-
-
-

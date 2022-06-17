@@ -8,9 +8,10 @@ from drf_yasg.utils import swagger_auto_schema
 from .models import Question, Tag, Answer, Comment
 from .serializers import (QuestionSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
-                          CreateAnswerSerializer, CommentCreateSerializer, CommentSerializer)
-from vote.services import UserRating
+                          CreateAnswerSerializer, CommentCreateSerializer,
+                          CommentSerializer, OutputQuestionSerializer)
 from .services import CreateRecord
+from question.service.get_serializer import get_output_serializer
 
 
 class UserQuestionListView(APIView):
@@ -45,12 +46,11 @@ class QuestionCreateView(APIView):
     )
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
-        create_record = CreateRecord(user=request.user, data=serializer)
-        user_rating = UserRating(user=request.user)
-        if serializer.is_valid():
-            create_record.validate_time_create()
-            user_rating.count_user_rating()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer.is_valid(raise_exception=True)
+        create_record = CreateRecord(user=request.user, data=serializer.validated_data, model='question')
+        data = create_record.find_model()
+        output_serializer = get_output_serializer(data)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class QuestionListView(APIView):
@@ -186,10 +186,9 @@ class CreateAnswerView(APIView):
     ))
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
-        s = CreateRecord(user=request.user, data=request.data, serializer=serializer)
-        if serializer.is_valid():
-            s.validate_time_create()
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        create_record = CreateRecord(user=request.user, data=serializer.validated_data, model='answer')
+        create_record.find_model()
 
 
 class CommentListView(APIView):
@@ -212,10 +211,9 @@ class CreateCommentView(APIView):
     ))
     def post(self, request):
         serializer = CommentCreateSerializer(data=request.data)
-        s = CreateRecord(user=request.user, data=request.data, serializer=serializer)
-        if serializer.is_valid():
-            s.validate_time_create()
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        s = CreateRecord(user=request.user, data=serializer.validated_data, model='comment')
+        s.find_model()
 
 
 class UpdateCommentView(APIView):

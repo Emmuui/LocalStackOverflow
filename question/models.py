@@ -3,7 +3,6 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericRelation
-from datetime import datetime
 from vote.models import Vote
 from django.utils import timezone
 
@@ -22,7 +21,8 @@ class Tag(models.Model):
 class Comment(models.Model):
     """ User`s comment to question or answer """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             null=True, blank=True, related_name='related_object_comment')
     text = models.TextField(max_length=1500)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now=True)
@@ -43,7 +43,8 @@ class Comment(models.Model):
 class Question(models.Model):
     """ User`s question model """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             blank=True, null=True, related_name='related_object_question')
     title = models.CharField(verbose_name='Input your title', max_length=255)
     description = models.TextField(verbose_name='Description of question',
                                    max_length=2000, null=True, blank=True)
@@ -62,7 +63,8 @@ class Question(models.Model):
 class Answer(models.Model):
     """ User`s Answer model """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             blank=True, null=True, related_name='related_object_answer')
     title = models.CharField(verbose_name='Title of answer',
                              max_length=255)
     description = models.TextField(max_length=2000, null=True,
