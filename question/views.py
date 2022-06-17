@@ -9,7 +9,8 @@ from .models import Question, Tag, Answer, Comment
 from .serializers import (QuestionSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
                           CreateAnswerSerializer, CommentCreateSerializer, CommentSerializer)
-from vote.services import CreateRecord, UserRating
+from vote.services import UserRating
+from .services import CreateRecord
 
 
 class UserQuestionListView(APIView):
@@ -44,11 +45,11 @@ class QuestionCreateView(APIView):
     )
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
-        s = CreateRecord(user=request.user, data=serializer)
-        s1 = UserRating(user=request.user)
+        create_record = CreateRecord(user=request.user, data=serializer)
+        user_rating = UserRating(user=request.user)
         if serializer.is_valid():
-            s.validate_time_create()
-            s1.count_user_rating()
+            create_record.validate_time_create()
+            user_rating.count_user_rating()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

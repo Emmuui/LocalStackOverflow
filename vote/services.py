@@ -1,8 +1,6 @@
 from question.models import Question, Answer, Comment
 from vote.models import Vote
-from rest_framework.response import Response
 from rest_framework import status, serializers
-import datetime
 
 
 class CountSystem:
@@ -11,6 +9,9 @@ class CountSystem:
         self.content_object = data['content_object']
         self.data = data
         self.user = user
+        self.update_obj = None
+        self.obj = None
+        self.number = 0
         self.vote = 0
 
     def update_vote(self):
@@ -19,62 +20,43 @@ class CountSystem:
         if previous_vote.choose_rating != next_vote:
             if previous_vote.choose_rating == str(0):
                 self.vote = self.data['choose_rating']
+                self.number = self.data['choose_rating']
             else:
                 self.vote = 0
-
-        obj = Vote.objects.get(pk=previous_vote.id)
-        obj.choose_rating = self.vote
-        obj.save()
-        self.count_vote()
+                if previous_vote.choose_rating == str(-1):
+                    self.number = 1
+                elif previous_vote.choose_rating == str(1):
+                    self.number = -1
+        elif previous_vote.choose_rating == next_vote:
+            self.vote = self.data['choose_rating']
+            self.number = 0
+        self.update_obj = Vote.objects.get(pk=previous_vote.id)
+        self.update_obj.choose_rating = self.vote
+        self.update_obj.save()
+        self.calculate_vote()
 
     def validate_user(self):
         values = self.content_object.voting.values_list('user', flat=True)
         if self.user.id in values:
             raise serializers.ValidationError('You have already voted')
         else:
-            Vote.objects.create(
+            self.obj = Vote.objects.create(
                 user=self.user,
                 content_type=self.data['content_type'],
                 object_id=self.data['object_id'],
                 choose_rating=self.data['choose_rating']
             )
+            self.calculate_vote()
 
-    def count_vote(self):
-        positive_rating = self.content_object.voting.filter(choose_rating=1).count()
-        negative_rating = self.content_object.voting.filter(choose_rating=-1).count()
-        self.content_object.vote_count = (positive_rating + (negative_rating * -1))
+    def calculate_vote(self):
+        if self.obj:
+            self.content_object.vote_count += int(self.obj.choose_rating)
+        elif self.update_obj:
+            self.content_object.vote_count += int(self.number)
         self.content_object.save()
-        return self.content_object
 
     def run_system(self):
         self.validate_user()
-
-
-class CreateRecord:
-    def __init__(self, user, data):
-        self.user = user
-        self.data = data
-
-    def one_time_add(self):
-        self.user.rating += 10
-        self.user.save()
-        return self.user
-
-    def validate_time_create(self):
-        get_user_record_by_date = Question.objects.filter(user=self.user,
-                                                          created_at__date=datetime.date.today()).count() + 1
-        number = {'NEW': 2,
-                  'MIDL': 4,
-                  'PRO': 6}
-
-        if self.user.rank:
-            if get_user_record_by_date <= number[self.user.rank]:
-                if self.data.is_valid():
-                    self.data.save(user=self.user)
-                    self.one_time_add()
-                return Response(self.data.errors, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                raise serializers.ValidationError(f'You can create only {number[self.user.rank]} record(s) for one day')
 
 
 class UserRating:
