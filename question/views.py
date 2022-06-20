@@ -10,8 +10,7 @@ from .serializers import (QuestionSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
                           CreateAnswerSerializer, CommentCreateSerializer,
                           CommentSerializer, OutputQuestionSerializer)
-from .services import CreateRecord
-from question.service.get_serializer import get_output_serializer
+from question.service.record_service import CreateRecord
 
 
 class UserQuestionListView(APIView):
@@ -47,9 +46,10 @@ class QuestionCreateView(APIView):
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        create_record = CreateRecord(user=request.user, data=serializer.validated_data, model='question')
-        data = create_record.find_model()
-        output_serializer = get_output_serializer(data)
+        print(serializer.validated_data)
+        service = CreateRecord(user=self.request.user, data=serializer.validated_data, model='question')
+        obj = service.find_model()
+        output_serializer = OutputQuestionSerializer(obj)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -187,8 +187,10 @@ class CreateAnswerView(APIView):
     def post(self, request):
         serializer = CreateAnswerSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        create_record = CreateRecord(user=request.user, data=serializer.validated_data, model='answer')
-        create_record.find_model()
+        service = CreateRecord(user=request.user, data=serializer.validated_data, model='answer')
+        obj = service.find_model()
+        output_serializer = AnswerSerializer(obj)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class CommentListView(APIView):
@@ -212,8 +214,10 @@ class CreateCommentView(APIView):
     def post(self, request):
         serializer = CommentCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        s = CreateRecord(user=request.user, data=serializer.validated_data, model='comment')
-        s.find_model()
+        service = CreateRecord(user=request.user, data=serializer.validated_data, model='comment')
+        obj = service.find_model()
+        output_serializer = CommentSerializer(obj)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
 
 class UpdateCommentView(APIView):

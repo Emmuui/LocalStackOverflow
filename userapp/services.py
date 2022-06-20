@@ -1,6 +1,3 @@
-from vote.services import CountSystem
-
-
 def upload_file(instance, file):
     """ Path to upload avatar file """
 
@@ -9,18 +6,25 @@ def upload_file(instance, file):
 
 class UserRating:
 
-    def __init__(self, user, one_record):
+    def __init__(self, user):
         self.user = user
-        self.one_record = one_record
         self.mult_by = 10
         self.local_rating = 0
-        self.rating_for_registration = 20
+
+    def rating_for_vote(self, number):
+        self.user.rating += int(number)
+        self.user.save()
+        self.add_rank_to_user()
+        return self.user
 
     def count_user_rating(self):
+        self.local_rating = self.mult_by
+        self.user.rating += self.local_rating
+        self.user.save()
+        self.add_rank_to_user()
+        return self.user
 
-        self.local_rating = self.mult_by * self.one_record
-        self.user.rating = self.local_rating + self.rating_for_registration
-
+    def add_rank_to_user(self):
         if self.user.rating <= 100:
             self.user.rank = 'NEW'
         elif 100 < self.user.rating <= 300:
@@ -31,4 +35,3 @@ class UserRating:
             self.user.is_staff = True
         self.user.save()
         return self.user
-

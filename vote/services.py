@@ -1,6 +1,6 @@
-from question.models import Question, Answer, Comment
 from vote.models import Vote
 from rest_framework import status, serializers
+from userapp.services import UserRating
 
 
 class CountSystem:
@@ -13,6 +13,7 @@ class CountSystem:
         self.obj = None
         self.number = 0
         self.vote = 0
+        self.user_rating = UserRating(user=self.user)
 
     def update_vote(self):
         next_vote = self.data['choose_rating']
@@ -53,8 +54,10 @@ class CountSystem:
 
     def calculate_vote(self):
         if self.obj:
+            self.user_rating.rating_for_vote(number=self.obj.choose_rating)
             self.content_object.vote_count += int(self.obj.choose_rating)
         elif self.update_obj:
+            self.user_rating.rating_for_vote(number=self.number)
             self.content_object.vote_count += int(self.number)
         self.content_object.save()
 

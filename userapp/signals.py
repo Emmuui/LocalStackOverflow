@@ -7,8 +7,10 @@ from .services import UserRating
 @receiver(post_save, sender=Question)
 @receiver(post_save, sender=Answer)
 @receiver(post_save, sender=Comment)
-def add_to_rating(sender, instance, **kwargs):
-    if instance:
-        one_record = 1
-        service = UserRating(user=instance.user, one_record=one_record)
+def add_to_rating(sender, instance, created, **kwargs):
+    if created:
+        service = UserRating(user=instance.user)
         service.count_user_rating()
+
+
+
