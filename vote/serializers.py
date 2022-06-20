@@ -13,7 +13,8 @@ class CreateVoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = '__all__'
+        fields = ['user', 'content_type', 'object_id', 'choose_rating',
+                  'date_created_at', 'time_created_at']
 
     def validate(self, attrs):
         try:

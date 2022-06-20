@@ -52,5 +52,5 @@ class VoteUpdateView(APIView):
         serializer = CreateVoteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         count = CountSystem(user=self.request.user, data=serializer.validated_data)
-        count.update_vote()
+        count.validate_time_update_vote()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

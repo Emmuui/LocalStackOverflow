@@ -1,6 +1,8 @@
 from vote.models import Vote
 from rest_framework import status, serializers
 from userapp.services import UserRating
+from question.models import Question
+from datetime import datetime
 
 
 class CountSystem:
@@ -14,6 +16,15 @@ class CountSystem:
         self.number = 0
         self.vote = 0
         self.user_rating = UserRating(user=self.user)
+
+    def validate_time_update_vote(self):
+        vote_instance = self.content_object.voting.get(user=self.user)
+        time = vote_instance.time_created_at.hour
+        current_hours = datetime.now().strftime("%H")
+        if int(current_hours) <= int(time+3):
+            self.update_vote()
+        else:
+            raise serializers.ValidationError('You can update your vote only during 3 hours after creation')
 
     def update_vote(self):
         next_vote = self.data['choose_rating']
@@ -40,6 +51,17 @@ class CountSystem:
         values = self.content_object.voting.values_list('user', flat=True)
         if self.user.id in values:
             raise serializers.ValidationError('You have already voted')
+        else:
+            self.validate_question_access_to_vote()
+
+    def validate_question_access_to_vote(self):
+        if self.content_object.__class__.__name__ == 'Question':
+            month = self.content_object.created_at.month
+            current_month = datetime.now().month
+            if current_month <= month + 1:
+                self.create_vote()
+            else:
+                raise serializers.ValidationError('You can vote within one month after the creation of the question')
         else:
             self.create_vote()
 
