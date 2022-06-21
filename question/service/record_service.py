@@ -1,5 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import status, serializers
+from rest_framework import serializers
 from question.models import Question, Answer, Comment
 import datetime
 

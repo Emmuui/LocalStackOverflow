@@ -7,7 +7,7 @@ venv/
 
 media/
 
-.env.dev/
+dev.env
 
 db.sqlite3
 

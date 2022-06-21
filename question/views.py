@@ -6,7 +6,7 @@ from userapp.permissions import IsOwnerOnly
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from .models import Question, Tag, Answer, Comment
-from .serializers import (QuestionSerializer, CreateQuestionSerializer,
+from .serializers import (QuestionUpdateSerializer, CreateQuestionSerializer,
                           TagSerializer, AnswerSerializer,
                           CreateAnswerSerializer, CommentCreateSerializer,
                           CommentSerializer, OutputQuestionSerializer)
@@ -19,7 +19,7 @@ class UserQuestionListView(APIView):
 
     def get(self, request, pk):
         queryset = Question.objects.filter(user__pk=self.request.user.id)
-        serializer = QuestionSerializer(queryset, many=True)
+        serializer = OutputQuestionSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -29,7 +29,7 @@ class QuestionDetailView(APIView):
 
     def get(self, request, pk):
         queryset = Question.objects.get(id=pk)
-        serializer = QuestionSerializer(queryset)
+        serializer = OutputQuestionSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -58,7 +58,7 @@ class QuestionListView(APIView):
 
     def get(self, request):
         queryset = Question.objects.all()
-        serializer = QuestionSerializer(queryset, many=True)
+        serializer = OutputQuestionSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -74,7 +74,7 @@ class QuestionUpdateView(APIView):
     )
     def put(self, request, pk, format=None):
         queryset = Question.objects.get(pk=pk)
-        serializer = QuestionSerializer(queryset, data=request.data)
+        serializer = QuestionUpdateSerializer(queryset, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

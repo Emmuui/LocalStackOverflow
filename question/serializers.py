@@ -27,7 +27,7 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
     """ Question serializer for update view  """
 
     tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
-                                             write_only=True, many=True)
+                                             write_only=True, many=True, required=False)
     description = serializers.CharField(required=False)
 
     class Meta:
@@ -41,17 +41,6 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
         for tag in tags:
             question.tag.add(tag)
         return question
-
-
-class QuestionSerializer(serializers.ModelSerializer):
-    """ Question serializer with one additional field for rating """
-
-    tag = TagSerializer(many=True)
-
-    class Meta:
-        model = Question
-        fields = ['id', 'title', 'description',
-                  'tag', 'vote_count', 'created_at', 'updated_at']
 
 
 class CreateQuestionSerializer(serializers.ModelSerializer):
@@ -68,7 +57,7 @@ class CreateQuestionSerializer(serializers.ModelSerializer):
 class AnswerSerializer(serializers.ModelSerializer):
     """ Answer serializer with one additional field for rating """
 
-    question = QuestionSerializer()
+    question = OutputQuestionSerializer()
 
     class Meta:
         model = Answer
