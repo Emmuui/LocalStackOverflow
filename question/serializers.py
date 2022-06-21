@@ -8,14 +8,14 @@ CONTENT_TYPES_MODEL = ['question', 'answer']
 
 class TagSerializer(serializers.ModelSerializer):
     """ Tag serializer for CRUD views """
+
     class Meta:
         model = Tag
-        fields = "__all__"
+        fields = '__all__'
 
 
 class OutputQuestionSerializer(serializers.ModelSerializer):
-    tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
-                                             write_only=True, many=True, required=False)
+    tag = TagSerializer(many=True, required=False)
     description = serializers.CharField(required=False)
 
     class Meta:
@@ -56,20 +56,13 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class CreateQuestionSerializer(serializers.ModelSerializer):
     """ Question serializer for create view """
-    tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
-                                             write_only=True, many=True)
+    tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), write_only=True,
+                                             many=True, required=False)
     description = serializers.CharField(required=False)
 
     class Meta:
         model = Question
         fields = ['title', 'tag', 'description']
-
-    def create(self, validated_data):
-        tags = validated_data.pop('tag')
-        question = Question.objects.create(**validated_data)
-        for tag in tags:
-            question.tag.add(tag)
-        return question
 
 
 class AnswerSerializer(serializers.ModelSerializer):

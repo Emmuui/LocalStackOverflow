@@ -1,7 +1,6 @@
 from vote.models import Vote
-from rest_framework import status, serializers
+from rest_framework import serializers
 from userapp.services import UserRating
-from question.models import Question
 from datetime import datetime, timedelta
 
 
@@ -16,6 +15,7 @@ class CountSystem:
         self.number = 0
         self.vote = 0
         self.user_rating = UserRating(user=self.user)
+        self.users_vote_list = self.content_object.voting.values_list('user', flat=True)
 
     def validate_time_update_vote(self):
         vote_instance = self.content_object.voting.get(user=self.user)
@@ -47,23 +47,22 @@ class CountSystem:
         self.update_obj.save()
         self.calculate_vote()
 
-    def validate_user(self):
-        values = self.content_object.voting.values_list('user', flat=True)
-        if self.user.id in values:
-            return self.validate_time_update_vote() # Сделать что бы обновлять голос можно было тоже только в течении месяца
+    def create_or_update_vote(self):
+        if self.user.id in self.users_vote_list:
+            return self.validate_time_update_vote()
         else:
-            return self.validate_question_access_to_vote()
+            return self.create_vote()
 
     def validate_question_access_to_vote(self):
         if self.content_object.__class__.__name__ == 'Question':
             date_created = self.content_object.created_at.date()
             current_date = datetime.now().date()
             if current_date <= date_created + timedelta(days=28):
-                self.create_vote()
+                self.create_or_update_vote()
             else:
                 raise serializers.ValidationError('You can vote within 28 days after the creation of the question')
         else:
-            self.create_vote()
+            self.create_or_update_vote()
 
     def create_vote(self):
         self.obj = Vote.objects.create(
@@ -85,4 +84,4 @@ class CountSystem:
         return self.content_object
 
     def run_system(self):
-        self.validate_user()
+        return self.validate_question_access_to_vote()

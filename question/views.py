@@ -46,7 +46,6 @@ class QuestionCreateView(APIView):
     def post(self, request):
         serializer = CreateQuestionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        print(serializer.validated_data)
         service = CreateRecord(user=self.request.user, data=serializer.validated_data, model='question')
         obj = service.find_model()
         output_serializer = OutputQuestionSerializer(obj)

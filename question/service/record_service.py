@@ -1,4 +1,4 @@
-from rest_framework.response import Response
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status, serializers
 from question.models import Question, Answer, Comment
 import datetime
@@ -26,10 +26,9 @@ class CreateRecord:
         }
         self.record_by_date = model[self.model]
         self.instance = mapping[self.model]
-        return self.validate_time_create()
+        return self.validate_creation_record_per_day()
 
-    def validate_time_create(self):
-
+    def validate_creation_record_per_day(self):
         instance = self.instance(self.user, self.data, self.model)
         get_user_record_by_date = self.record_by_date.objects.filter(user=self.user,
                                                                      created_at__date=datetime.date.today()).count() + 1
@@ -55,18 +54,20 @@ class QuestionCreateService(CreateRecord):
         except KeyError:
             description = None
 
-        try:
-            tag = self.data['tag']
-            print(tag)
-        except:
-            tag = None
-
         self.obj = Question.objects.create(
             user=self.user,
             title=self.data['title'],
             description=description,
-            # tag=self.data['tag']
         )
+
+        try:
+            tags = self.data['tag']
+            for tag in tags:
+                self.obj.tag.add(tag)
+            return self.obj
+        except KeyError:
+            pass
+
         return self.obj
 
 
