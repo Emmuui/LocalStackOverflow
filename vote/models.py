@@ -14,8 +14,7 @@ class Vote(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     choose_rating = models.CharField(max_length=50, choices=rating_choice)
-    date_created_at = models.DateField(auto_now=True)
-    time_created_at = models.TimeField(auto_now=True)
+    date_created_at = models.DateTimeField(auto_now=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(
         verbose_name='related object',

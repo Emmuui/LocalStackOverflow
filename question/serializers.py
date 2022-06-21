@@ -15,7 +15,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 class OutputQuestionSerializer(serializers.ModelSerializer):
     tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
-                                             write_only=True, many=True)
+                                             write_only=True, many=True, required=False)
     description = serializers.CharField(required=False)
 
     class Meta:
@@ -56,7 +56,6 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class CreateQuestionSerializer(serializers.ModelSerializer):
     """ Question serializer for create view """
-
     tag = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
                                              write_only=True, many=True)
     description = serializers.CharField(required=False)

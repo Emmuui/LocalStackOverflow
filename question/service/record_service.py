@@ -12,11 +12,6 @@ class CreateRecord:
         self.record_by_date = None
         self.instance = None
 
-    def one_time_add(self):
-        self.user.rating += 10
-        self.user.save()
-        return self.user
-
     def find_model(self):
         mapping = {
             'question': QuestionCreateService,
@@ -59,6 +54,12 @@ class QuestionCreateService(CreateRecord):
             description = self.data['description']
         except KeyError:
             description = None
+
+        try:
+            tag = self.data['tag']
+            print(tag)
+        except:
+            tag = None
 
         self.obj = Question.objects.create(
             user=self.user,
