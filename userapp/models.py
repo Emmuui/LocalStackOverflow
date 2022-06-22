@@ -9,11 +9,13 @@ class UserProfile(AbstractUser):
     NEW = 'NEW'
     MIDL = 'MIDL'
     PRO = 'PRO'
+    STAFF = 'STAFF'
 
     CHOICE_RANK = (
         (NEW, 'New'),
         (MIDL, 'Midl'),
-        (PRO, 'Pro')
+        (PRO, 'Pro'),
+        (STAFF, 'Staff')
     )
 
     avatar = models.ImageField(upload_to=upload_file, null=True, blank=True)

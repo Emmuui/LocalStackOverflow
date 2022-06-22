@@ -10,7 +10,7 @@ from .services import UserRating
 def add_to_rating(sender, instance, created, **kwargs):
     if created:
         service = UserRating(user=instance.user)
-        service.count_user_rating()
+        service.rating_for_creation_record()
 
 
 

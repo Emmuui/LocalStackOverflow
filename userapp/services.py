@@ -8,21 +8,26 @@ class UserRating:
 
     def __init__(self, user):
         self.user = user
-        self.mult_by = 10
-        self.local_rating = 0
+        self.mult_by = 5
+        self.mult_by_mapping = {
+            'NEW': 5,
+            'MIDL': 10,
+            'PRO': 15,
+            'STAFF': 20
+        }
+        self.mult_by = self.mult_by_mapping[self.user.rank]
 
-    def rating_for_vote(self, number):
-        self.user.rating += int(number)
+    def rating_for_creation_record(self):
+        self.user.rating += 5
+        self.user.save()
+
+    def count_user_rating(self, vote):
+        if int(vote) == 1:
+            self.user.rating += self.mult_by
+        elif int(vote) == -1:
+            self.user.rating -= self.mult_by
         self.user.save()
         self.add_rank_to_user()
-        return self.user
-
-    def count_user_rating(self):
-        self.local_rating = self.mult_by
-        self.user.rating += self.local_rating
-        self.user.save()
-        self.add_rank_to_user()
-        return self.user
 
     def add_rank_to_user(self):
         if self.user.rating <= 100:
@@ -32,6 +37,6 @@ class UserRating:
         elif 300 < self.user.rating <= 500:
             self.user.rank = 'PRO'
         elif self.user.rating > 500:
+            self.user.rank = 'STAFF'
             self.user.is_staff = True
         self.user.save()
-        return self.user

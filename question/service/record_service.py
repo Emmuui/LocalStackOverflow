@@ -48,10 +48,7 @@ class QuestionCreateService(CreateRecord):
         CreateRecord.__init__(self, user, data, model)
 
     def create_method(self):
-        try:
-            description = self.data['description']
-        except KeyError:
-            description = None
+        description = self.data.get('description', None)
 
         self.obj = Question.objects.create(
             user=self.user,
@@ -59,14 +56,9 @@ class QuestionCreateService(CreateRecord):
             description=description,
         )
 
-        try:
-            tags = self.data['tag']
-            for tag in tags:
-                self.obj.tag.add(tag)
-            return self.obj
-        except KeyError:
-            pass
-
+        tags = self.data.get('tag', [])
+        for tag in tags:
+            self.obj.tag.add(tag)
         return self.obj
 
 
@@ -76,10 +68,7 @@ class AnswerCreateService(CreateRecord):
         CreateRecord.__init__(self, user, data, model)
 
     def create_method(self):
-        try:
-            description = self.data['description']
-        except KeyError:
-            description = None
+        description = self.data.get('description', None)
 
         self.obj = Answer.objects.create(
             user=self.user,
@@ -97,10 +86,7 @@ class CommentCreateService(CreateRecord):
         CreateRecord.__init__(self, user, data, model)
 
     def create_method(self):
-        try:
-            parent = self.data['parent']
-        except KeyError:
-            parent = None
+        parent = self.data.get('parent', None)
 
         self.obj = Comment.objects.create(
             user=self.user,
