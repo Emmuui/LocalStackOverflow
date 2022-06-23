@@ -4,7 +4,8 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
-from .serializers import (UserListSerializer, RegisterSerializer, ImageUploadSerializer)
+from .serializers import (UserListSerializer, RegisterSerializer,
+                          UserProfileDetailSerializer, ImageUploadSerializer)
 from .models import UserProfile
 from .permissions import IsOwnerOnly
 from drf_yasg import openapi
@@ -63,7 +64,7 @@ class OwnUserDataDetailView(APIView):
 
     def get(self, request, format=None):
         user = UserProfile.objects.filter(id=self.request.user.id)
-        serializer = UserListSerializer(user, many=True)
+        serializer = UserProfileDetailSerializer(user, many=True)
         return Response(
             serializer.data,
             status=status.HTTP_200_OK

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import UserProfile
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from question.serializers import OutputQuestionSerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -44,6 +45,14 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['username', 'email', 'first_name', 'last_name', 'avatar']
+
+
+class UserProfileDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = ['username', 'email', 'first_name', 'last_name', 'avatar', 'question_user', 'answer_user']
+        depth = 1
 
 
 class ImageUploadSerializer(serializers.ModelSerializer):

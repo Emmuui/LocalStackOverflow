@@ -11,6 +11,7 @@ from .serializers import (QuestionUpdateSerializer, CreateQuestionSerializer,
                           CreateAnswerSerializer, CommentCreateSerializer,
                           CommentSerializer, OutputQuestionSerializer)
 from question.service.record_service import CreateRecord
+from userapp.services import UserRating
 
 
 class UserQuestionListView(APIView):
@@ -47,7 +48,9 @@ class QuestionCreateView(APIView):
         serializer = CreateQuestionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         service = CreateRecord(user=self.request.user, data=serializer.validated_data, model='question')
-        obj = service.find_model()
+        obj = service.run_system()
+        add_rating = UserRating(user=self.request.user)
+        add_rating.rating_for_creation_record()
         output_serializer = OutputQuestionSerializer(obj)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -188,6 +191,8 @@ class CreateAnswerView(APIView):
         serializer.is_valid(raise_exception=True)
         service = CreateRecord(user=request.user, data=serializer.validated_data, model='answer')
         obj = service.find_model()
+        add_rating = UserRating(user=self.request.user)
+        add_rating.rating_for_creation_record()
         output_serializer = AnswerSerializer(obj)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
@@ -215,6 +220,8 @@ class CreateCommentView(APIView):
         serializer.is_valid(raise_exception=True)
         service = CreateRecord(user=request.user, data=serializer.validated_data, model='comment')
         obj = service.find_model()
+        add_rating = UserRating(user=self.request.user)
+        add_rating.rating_for_creation_record()
         output_serializer = CommentSerializer(obj)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 

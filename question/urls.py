@@ -9,8 +9,8 @@ from .views import (UserQuestionListView, QuestionCreateView, TagView,
 
 urlpatterns = [
     path('question/user/<int:pk>/', UserQuestionListView.as_view()),
-    path('question/list/', QuestionListView.as_view()),
-    path('question/create/', QuestionCreateView.as_view()),
+    path('question/list/', QuestionListView.as_view(), name='question_list'),
+    path('question/create/', QuestionCreateView.as_view(), name='question_create'),
     path('question/detail/<int:pk>/', QuestionDetailView.as_view()),
     path('question/update/<int:pk>/', QuestionUpdateView.as_view()),
     path('question/delete/<int:pk>/', QuestionDeleteView.as_view()),

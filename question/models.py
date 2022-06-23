@@ -22,7 +22,7 @@ class Comment(models.Model):
     """ User`s comment to question or answer """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                             null=True, blank=True)
+                             null=True, blank=True, related_name='comment_user')
     text = models.TextField(max_length=1500)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now=True)
@@ -44,7 +44,7 @@ class Question(models.Model):
     """ User`s question model """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                             blank=True, null=True)
+                             blank=True, null=True, related_name='question_user')
     title = models.CharField(verbose_name='Input your title', max_length=255)
     description = models.TextField(verbose_name='Description of question',
                                    max_length=2000, null=True, blank=True)
@@ -64,7 +64,7 @@ class Answer(models.Model):
     """ User`s Answer model """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                             blank=True, null=True)
+                             blank=True, null=True, related_name='answer_user')
     title = models.CharField(verbose_name='Title of answer',
                              max_length=255)
     description = models.TextField(max_length=2000, null=True,

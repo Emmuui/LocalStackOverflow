@@ -4,13 +4,13 @@ from question.models import Question, Answer, Comment
 from .services import UserRating
 
 
-@receiver(post_save, sender=Question)
-@receiver(post_save, sender=Answer)
-@receiver(post_save, sender=Comment)
-def add_to_rating(sender, instance, created, **kwargs):
-    if created:
-        service = UserRating(user=instance.user)
-        service.rating_for_creation_record()
+# @receiver(post_save, sender=Question)
+# @receiver(post_save, sender=Answer)
+# @receiver(post_save, sender=Comment)
+# def add_to_rating(sender, instance, created, **kwargs):
+#     if created:
+#         service = UserRating(user=instance.user)
+#         service.rating_for_creation_record()
 
 
 
