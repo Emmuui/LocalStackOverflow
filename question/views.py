@@ -12,6 +12,7 @@ from .serializers import (QuestionUpdateSerializer, CreateQuestionSerializer,
                           CommentSerializer, OutputQuestionSerializer)
 from question.service.record_service import CreateRecord
 from userapp.services import UserRating
+from .exceptions import RecordPerDayException
 
 
 class UserQuestionListView(APIView):
@@ -45,14 +46,17 @@ class QuestionCreateView(APIView):
                     'description': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
     )
     def post(self, request):
-        serializer = CreateQuestionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        service = CreateRecord(user=self.request.user, data=serializer.validated_data, model='question')
-        obj = service.run_system()
-        add_rating = UserRating(user=self.request.user)
-        add_rating.rating_for_creation_record()
-        output_serializer = OutputQuestionSerializer(obj)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = CreateQuestionSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            service = CreateRecord(user=self.request.user, data=serializer.validated_data, model='question')
+            obj = service.run_system()
+            add_rating = UserRating(user=self.request.user)
+            add_rating.rating_for_creation_record()
+            output_serializer = OutputQuestionSerializer(obj)
+            return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        except RecordPerDayException as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
 class QuestionListView(APIView):
@@ -187,14 +191,17 @@ class CreateAnswerView(APIView):
                     'question': openapi.Schema(type=openapi.TYPE_STRING, description='question')}
     ))
     def post(self, request):
-        serializer = CreateAnswerSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        service = CreateRecord(user=request.user, data=serializer.validated_data, model='answer')
-        obj = service.find_model()
-        add_rating = UserRating(user=self.request.user)
-        add_rating.rating_for_creation_record()
-        output_serializer = AnswerSerializer(obj)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = CreateAnswerSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            service = CreateRecord(user=request.user, data=serializer.validated_data, model='answer')
+            obj = service.find_model()
+            add_rating = UserRating(user=self.request.user)
+            add_rating.rating_for_creation_record()
+            output_serializer = AnswerSerializer(obj)
+            return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        except RecordPerDayException as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentListView(APIView):
@@ -216,14 +223,17 @@ class CreateCommentView(APIView):
                     'object_id': openapi.Schema(type=openapi.TYPE_STRING, description='object_id')}
     ))
     def post(self, request):
-        serializer = CommentCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        service = CreateRecord(user=request.user, data=serializer.validated_data, model='comment')
-        obj = service.find_model()
-        add_rating = UserRating(user=self.request.user)
-        add_rating.rating_for_creation_record()
-        output_serializer = CommentSerializer(obj)
-        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = CommentCreateSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            service = CreateRecord(user=request.user, data=serializer.validated_data, model='comment')
+            obj = service.find_model()
+            add_rating = UserRating(user=self.request.user)
+            add_rating.rating_for_creation_record()
+            output_serializer = CommentSerializer(obj)
+            return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+        except RecordPerDayException as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateCommentView(APIView):

@@ -12,7 +12,7 @@ class QuestionTestCase(APITestCase):
 
     def setUp(self):
         self.user_1 = UserProfile.objects.create(username='TestUser', password='testpassword', rank=100)
-        self.client.login(username='john', password='johnpassword')
+        self.client.login(username='TestUser', password='testpassword')
         self.question_1 = {
             "user": self.user_1.id,
             "title": "Hello from test"

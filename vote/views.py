@@ -7,6 +7,7 @@ from drf_yasg.utils import swagger_auto_schema
 from .models import Vote
 from .serializers import CreateVoteSerializer
 from .services import CountSystem
+from .exceptions import TimeValidateException, BaseValidateException, RatingException
 
 
 class VoteServiceView(APIView):
@@ -19,11 +20,14 @@ class VoteServiceView(APIView):
                     'object_id': openapi.Schema(type=openapi.TYPE_STRING, description='string')})
     )
     def post(self, request):
-        serializer = CreateVoteSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        count = CountSystem(user=self.request.user, data=serializer.validated_data)
-        count.run_system()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = CreateVoteSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            count = CountSystem(user=self.request.user, data=serializer.validated_data)
+            count.run_system()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except (TimeValidateException, BaseValidateException, RatingException) as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
 class VoteListView(APIView):

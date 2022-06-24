@@ -1,6 +1,7 @@
+import datetime
 from rest_framework import serializers
 from question.models import Question, Answer, Comment
-import datetime
+from question.exceptions import RecordPerDayException
 
 
 class CreateRecord:
@@ -35,7 +36,7 @@ class CreateRecord:
                   'PRO': 6}
         if self.user.rank:
             if self.record_by_date >= number[self.user.rank]:
-                raise serializers.ValidationError(f'You can create only {number[self.user.rank]} record(s) for one day')
+                raise RecordPerDayException(f'You can create only {number[self.user.rank]} record(s) for one day')
 
     def run_system(self):
         self.find_model()
