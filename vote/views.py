@@ -23,7 +23,10 @@ class VoteServiceView(APIView):
         try:
             serializer = CreateVoteSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            count = CountSystem(user=self.request.user, data=serializer.validated_data)
+            val_data = serializer.validated_data
+            count = CountSystem(user=self.request.user, content_object=val_data.get('content_object'),
+                                content_type=val_data.get('content_type'),
+                                obj_id=val_data.get('object_id'), choose_rating=val_data.get('choose_rating'))
             count.run_system()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except (TimeValidateException, BaseValidateException, RatingException) as e:
