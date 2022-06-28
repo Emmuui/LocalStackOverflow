@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from .models import Vote
 
+
 CONTENT_TYPES_MODEL = ['question', 'answer', 'comment']
 
 
@@ -23,3 +24,12 @@ class CreateVoteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'object_id': ['Invalid pk "'+str(attrs['object_id'])+'" - object does not exist.']})
         return attrs
 
+
+class OutputSerializer(serializers.ModelSerializer):
+    content_type = serializers.SlugRelatedField(queryset=ContentType.objects.filter(model__in=CONTENT_TYPES_MODEL),
+                                                slug_field='model')
+    object_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Vote
+        fields = ['user', 'choose_rating', 'content_type', 'object_id']
