@@ -78,11 +78,11 @@ class CountSystem:
             raise RatingException('Must be rating bigger than 50')
         return rating
 
-    def run_system(self):
+    def run_system(self, datetime_now):
         self.validate_user_to_vote(self.user.rating)
-        self.validate_question_access_to_vote(datetime.now())
+        self.validate_question_access_to_vote(datetime_now)
         if self.previous_vote:
-            self.validate_time_update_vote(datetime.now())
+            self.validate_time_update_vote(datetime_now)
             self.compare_vote()
         else:
             self.value = self.choose_rating

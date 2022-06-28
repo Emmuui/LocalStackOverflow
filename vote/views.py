@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -31,7 +32,7 @@ class VoteServiceView(APIView):
                                 first_vote=content_object.voting.filter(user=request.user).first(),
                                 previous_vote=content_object.voting.filter(user=request.user).last(),
                                 class_name=content_object.__class__.__name__)
-            obj = count.run_system()
+            obj = count.run_system(datetime.now())
             output_serializer = OutputSerializer(obj)
             return Response(output_serializer.data, status=status.HTTP_201_CREATED)
         except (TimeValidateException, BaseValidateException, RatingException) as e:
