@@ -1,7 +1,9 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-
+from os import environ
+from sys import path as sys_path
+from django import setup
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -16,7 +18,6 @@ SECRET_KEY = 'django-insecure-pd*a&w@-!ku5pe-e$21_^z8gkkk*5)_zgv*z0s%3ve29lknn@k
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -35,9 +36,9 @@ INSTALLED_APPS = [
 
     'drf_yasg',
     'djoser',
-    'userapp',
-    'question',
-    'vote',
+    'question.apps.QuestionConfig',
+    'userapp.apps.UserAppConfig',
+    'vote.apps.VoteConfig',
 ]
 
 MIDDLEWARE = [
@@ -210,3 +211,8 @@ EMAIL_HOST = 'smtp.mailtrap.io'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = '25'
+
+
+sys_path.append('config.settings.py')
+environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+setup()

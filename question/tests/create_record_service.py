@@ -1,7 +1,13 @@
+import os
+import django
 import unittest
-from datetime import datetime, timedelta
 from unittest import mock
-from question.service.record_service import CreateRecord, QuestionCreateService, AnswerCreateService, CommentCreateService
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
+
+from question.service.record_service import CreateRecord, QuestionCreateService,\
+    AnswerCreateService, CommentCreateService
 
 
 class CountSystemTest(unittest.TestCase):

@@ -1,6 +1,6 @@
 from vote.models import Vote
 from userapp.services import UserRating
-from datetime import datetime, timedelta
+from datetime import timedelta
 from .exceptions import TimeValidateException, BaseValidateException, RatingException
 
 

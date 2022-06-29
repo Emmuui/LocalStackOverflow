@@ -12,3 +12,5 @@ dev.env
 db.sqlite3
 
 toDo.txt/
+
+.coverage
