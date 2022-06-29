@@ -186,7 +186,7 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': False,
+    'SEND_ACTIVATION_EMAIL': True,
     'SERIALIZERS': {
         'user_create': 'userapp.serializers.RegisterSerializer'
     },
@@ -205,10 +205,8 @@ SWAGGER_SETTINGS = {
     }
 }
 
-# EMAIL_BACKEND = 'django_mailjet.backends.MailjetBackend'
-# MAILJET_API_KEY = os.environ.get('MAILJET_API_KEY')
-# MAILJET_API_SECRET = os.environ.get('MAILJET_API_SECRET')
-# EMAIL_HOST = 'in-v3.mailjet.com'
-# EMAIL_USE_TLS = True
-# EMAIL_PORT = 587
-# DEFAULT_FROM_EMAIL = 'support nikityuk.off@gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = '25'

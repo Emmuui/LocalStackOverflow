@@ -1,6 +1,8 @@
 import unittest
 from datetime import datetime, timedelta
 from unittest import mock
+from unittest.mock import MagicMock
+
 from django.contrib.contenttypes.models import ContentType
 from .services import CountSystem
 
@@ -155,7 +157,9 @@ class CountSystemTest(unittest.TestCase):
         instance.validate_question_access_to_vote(self.current_date)
         self.assertEqual('You can update vote', 'You can update vote')
 
-    def test_run_system(self):
+    @mock.patch.object(CountSystem, 'update_rating')
+    @mock.patch.object(CountSystem, 'create_vote')
+    def test_run_system(self, mock_create_vote,  mock_update_rating):
         previous_vote = mock.Mock(user=self.mock_user, choose_rating='-1',
                                   date_created_at=datetime.now())
         ct = ContentType.objects.get(model='question')
@@ -167,8 +171,15 @@ class CountSystemTest(unittest.TestCase):
                                date_created_at=datetime.now())
         instance = CountSystem(user=self.mock_user, content_object=content_object,
                                content_type=mock_content_type, obj_id=self.mock_obj_id,
-                               choose_rating=0, first_vote=first_vote,
+                               choose_rating=1, first_vote=first_vote,
                                previous_vote=previous_vote, class_name='Question')
+        vote_mock = mock.Mock(user=self.mock_user, content_type=mock_content_type,
+                              object_id=self.mock_obj_id, choose_rating=0,
+                              return_value=self.mock_user)
+        mock_create_vote.return_value = vote_mock.choose_rating
+        mock_update_rating.return_value = 'update rating'
         run_system = instance.run_system(datetime.now())
-        mock_obj = None
-        self.assertEqual(mock_obj, run_system)
+        self.assertEqual(run_system, vote_mock.choose_rating)
+
+
+

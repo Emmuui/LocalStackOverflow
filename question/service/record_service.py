@@ -1,5 +1,4 @@
 import datetime
-from rest_framework import serializers
 from question.models import Question, Answer, Comment
 from question.exceptions import RecordPerDayException
 
@@ -11,36 +10,33 @@ class CreateRecord:
         self.model = model
         self.record_by_date = None
         self.instance = None
-
-    def find_model(self):
         mapping = {
             'question': QuestionCreateService,
             'answer': AnswerCreateService,
             'comment': CommentCreateService
         }
-
-        model = {
+        model_mapping = {
             'question': Question,
             'answer': Answer,
             'comment': Comment
         }
-        self.record_by_date = model[self.model]
+        self.model_instance = model_mapping[self.model]
         self.instance = mapping[self.model]
 
-    def validate_creation_record_per_day(self):
-        self.instance = self.instance(self.user, self.data, self.model)
-        self.record_by_date = self.record_by_date.objects.filter(user=self.user,
-                                                                 created_at__date=datetime.date.today()).count()
+    def validate_creation_record_per_day(self, record_by_date):
         number = {'NEW': 2,
                   'MIDL': 4,
                   'PRO': 6}
-        if self.user.rank:
-            if self.record_by_date >= number[self.user.rank]:
-                raise RecordPerDayException(f'You can create only {number[self.user.rank]} record(s) for one day')
+        value = number[self.user.rank]
+        if record_by_date >= value:
+            raise RecordPerDayException(f'You can create only {value} record(s) for one day')
+        return 'You can create record'
 
     def run_system(self):
-        self.find_model()
-        self.validate_creation_record_per_day()
+        self.record_by_date = self.model_instance.objects.filter(user=self.user,
+                                                                 created_at__date=datetime.date.today()).count()
+        self.validate_creation_record_per_day(self.record_by_date)
+        self.instance = self.instance(self.user, self.data, self.model)
         return self.instance.create_method()
 
 

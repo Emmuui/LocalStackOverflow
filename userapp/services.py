@@ -46,3 +46,4 @@ class UserRating:
     def run_system(self, vote):
         self.count_user_rating(vote)
         self.add_rank_to_user()
+        return self.user.rank

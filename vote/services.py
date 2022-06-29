@@ -86,7 +86,7 @@ class CountSystem:
             self.compare_vote()
         else:
             self.value = self.choose_rating
-        self.create_vote()
         self.update_vote_count()
         self.update_rating()
-        return self.obj
+        return self.create_vote()
+

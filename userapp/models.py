@@ -21,7 +21,7 @@ class UserProfile(AbstractUser):
     avatar = models.ImageField(upload_to=upload_file, null=True, blank=True)
     description = models.TextField(max_length=2000, null=True, blank=True)
     rating = models.IntegerField(default=10, null=True, blank=True)
-    rank = models.CharField(max_length=40, choices=CHOICE_RANK)
+    rank = models.CharField(max_length=40, choices=CHOICE_RANK, default=NEW)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 

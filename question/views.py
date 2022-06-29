@@ -49,7 +49,8 @@ class QuestionCreateView(APIView):
         try:
             serializer = CreateQuestionSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            service = CreateRecord(user=self.request.user, data=serializer.validated_data, model='question')
+            service = CreateRecord(user=self.request.user, data=serializer.validated_data,
+                                   model='question')
             obj = service.run_system()
             add_rating = UserRating(user=self.request.user)
             add_rating.rating_for_creation_record()
