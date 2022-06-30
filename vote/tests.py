@@ -93,7 +93,7 @@ class CountSystemTest(unittest.TestCase):
                                choose_rating=None, first_vote=None,
                                previous_vote=None, class_name=None)
         rating = instance.validate_user_to_vote(self.mock_user.rating)
-        self.assertEqual(self.mock_user.rating, rating)
+        self.assertEqual(100, rating)
 
     def test_validate_question_access_to_vote_with_exception(self):
         previous_vote = mock.Mock(user=self.mock_user, choose_rating='-1',

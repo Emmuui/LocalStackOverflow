@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -47,10 +48,16 @@ class QuestionCreateView(APIView):
     )
     def post(self, request):
         try:
+            model_mapping = {
+                'Question': Question,
+            }
             serializer = CreateQuestionSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
+            model = CreateQuestionSerializer.Meta.model.__name__
+            record_by_date = model_mapping[model].objects.filter(user=request.user,
+                                                                 created_at__date=datetime.date.today()).count()
             service = CreateRecord(user=self.request.user, data=serializer.validated_data,
-                                   model='question')
+                                   model=CreateQuestionSerializer.Meta.model.__name__, record_by_date=record_by_date)
             obj = service.run_system()
             add_rating = UserRating(user=self.request.user)
             add_rating.rating_for_creation_record()
@@ -193,10 +200,17 @@ class CreateAnswerView(APIView):
     ))
     def post(self, request):
         try:
+            model_mapping = {
+                'Answer': Answer,
+            }
             serializer = CreateAnswerSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            service = CreateRecord(user=request.user, data=serializer.validated_data, model='answer')
-            obj = service.find_model()
+            model = CreateAnswerSerializer.Meta.model.__name__
+            record_by_date = model_mapping[model].objects.filter(user=request.user,
+                                                                 created_at__date=datetime.date.today()).count()
+            service = CreateRecord(user=request.user, data=serializer.validated_data,
+                                   model=CreateAnswerSerializer.Meta.model.__name__, record_by_date=record_by_date)
+            obj = service.run_system()
             add_rating = UserRating(user=self.request.user)
             add_rating.rating_for_creation_record()
             output_serializer = AnswerSerializer(obj)
@@ -225,10 +239,17 @@ class CreateCommentView(APIView):
     ))
     def post(self, request):
         try:
+            model_mapping = {
+                'Comment': Comment,
+            }
             serializer = CommentCreateSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            service = CreateRecord(user=request.user, data=serializer.validated_data, model='comment')
-            obj = service.find_model()
+            model = CommentCreateSerializer.Meta.model.__name__
+            record_by_date = model_mapping[model].objects.filter(user=request.user,
+                                                                 created_at__date=datetime.date.today()).count()
+            service = CreateRecord(user=request.user, data=serializer.validated_data,
+                                   model=CommentCreateSerializer.Meta.model.__name__, record_by_date=record_by_date)
+            obj = service.run_system()
             add_rating = UserRating(user=self.request.user)
             add_rating.rating_for_creation_record()
             output_serializer = CommentSerializer(obj)
