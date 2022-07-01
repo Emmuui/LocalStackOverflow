@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'question.apps.QuestionConfig',
     'userapp.apps.UserAppConfig',
     'vote.apps.VoteConfig',
+    'chat.apps.ChatConfig',
 ]
 
 MIDDLEWARE = [

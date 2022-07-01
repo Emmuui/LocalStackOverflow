@@ -35,5 +35,6 @@ urlpatterns = [
     path('user/', include('userapp.urls')),
     path('stackoverflow/', include('question.urls')),
     path('vote/', include('vote.urls')),
+    path('chat/', include('chat.urls'))
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

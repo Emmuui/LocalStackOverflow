@@ -48,14 +48,10 @@ class QuestionCreateView(APIView):
     )
     def post(self, request):
         try:
-            model_mapping = {
-                'Question': Question,
-            }
             serializer = CreateQuestionSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            model = CreateQuestionSerializer.Meta.model.__name__
-            record_by_date = model_mapping[model].objects.filter(user=request.user,
-                                                                 created_at__date=datetime.date.today()).count()
+            record_by_date = Question.objects.filter(user=request.user,
+                                                     created_at__date=datetime.date.today()).count()
             service = CreateRecord(user=self.request.user, data=serializer.validated_data,
                                    model=CreateQuestionSerializer.Meta.model.__name__, record_by_date=record_by_date)
             obj = service.run_system()
@@ -200,14 +196,10 @@ class CreateAnswerView(APIView):
     ))
     def post(self, request):
         try:
-            model_mapping = {
-                'Answer': Answer,
-            }
             serializer = CreateAnswerSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            model = CreateAnswerSerializer.Meta.model.__name__
-            record_by_date = model_mapping[model].objects.filter(user=request.user,
-                                                                 created_at__date=datetime.date.today()).count()
+            record_by_date = Answer.objects.filter(user=request.user,
+                                                   created_at__date=datetime.date.today()).count()
             service = CreateRecord(user=request.user, data=serializer.validated_data,
                                    model=CreateAnswerSerializer.Meta.model.__name__, record_by_date=record_by_date)
             obj = service.run_system()
@@ -216,6 +208,8 @@ class CreateAnswerView(APIView):
             output_serializer = AnswerSerializer(obj)
             return Response(output_serializer.data, status=status.HTTP_201_CREATED)
         except RecordPerDayException as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -239,14 +233,10 @@ class CreateCommentView(APIView):
     ))
     def post(self, request):
         try:
-            model_mapping = {
-                'Comment': Comment,
-            }
             serializer = CommentCreateSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            model = CommentCreateSerializer.Meta.model.__name__
-            record_by_date = model_mapping[model].objects.filter(user=request.user,
-                                                                 created_at__date=datetime.date.today()).count()
+            record_by_date = Comment.objects.filter(user=request.user,
+                                                    created_at__date=datetime.date.today()).count()
             service = CreateRecord(user=request.user, data=serializer.validated_data,
                                    model=CommentCreateSerializer.Meta.model.__name__, record_by_date=record_by_date)
             obj = service.run_system()
@@ -255,6 +245,8 @@ class CreateCommentView(APIView):
             output_serializer = CommentSerializer(obj)
             return Response(output_serializer.data, status=status.HTTP_201_CREATED)
         except RecordPerDayException as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
