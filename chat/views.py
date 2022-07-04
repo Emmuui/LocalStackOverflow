@@ -5,6 +5,7 @@ from rest_framework.permissions import *
 
 from .models import PublicChatRoom, PublicChatUserMessage
 from .serializers import PublicChatRoomSerializer
+from django.shortcuts import render
 
 
 class PublicChatRoomView(APIView):
@@ -14,3 +15,13 @@ class PublicChatRoomView(APIView):
         serializer = PublicChatRoomSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+def index(request):
+    return render(request, 'chat/index.html')
+
+
+def room(request, room_name):
+    return render(request, 'chat/room.html', {
+        'room_name': room_name
+    })
