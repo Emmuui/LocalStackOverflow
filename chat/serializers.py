@@ -1,13 +1,21 @@
 from rest_framework import serializers
-from .models import PublicChatUserMessage, PublicChatRoom
+from .models import PublicChatUserMessage, PublicChatRoom, MessageToUser
 from userapp.models import UserProfile
 
 
-class UserSerializer(serializers.ModelSerializer):
+class MessageToUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = UserProfile
-        fields = ['id', 'username', 'email']
+        model = MessageToUser
+        fields = ['text', 'recipient', 'created_at']
+
+
+class MessageListByOwnerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MessageToUser
+        fields = ['owner', 'recipient', 'created_at']
+        depth = 1
 
 
 class PublicChatRoomSerializer(serializers.ModelSerializer):
@@ -18,9 +26,18 @@ class PublicChatRoomSerializer(serializers.ModelSerializer):
 
 
 class PublicChatUserMessageSerializer(serializers.ModelSerializer):
-    messages = PublicChatRoomSerializer()
 
     class Meta:
         model = PublicChatUserMessage
-        fields = ['user', 'room', 'messages', 'created_at']
-        depth = 1
+        fields = ['room', 'message', 'created_at']
+
+
+# class UserSerializer(serializers.ModelSerializer):
+#
+#     class Meta:
+#         model = UserProfile
+#         fields = ['id', 'username', 'email']
+
+
+
+
