@@ -12,13 +12,9 @@ class PublicChatRoom(models.Model):
 
 class PublicChatUserMessage(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='message_user')
-    room = models.ForeignKey(PublicChatRoom, on_delete=models.CASCADE)
+    room = models.ForeignKey(PublicChatRoom, on_delete=models.CASCADE, related_name='messages')
     message = models.TextField(verbose_name='message')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'id: {self.id}, user: {self.user}, message: {self.message}'
-
-
-
-

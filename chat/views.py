@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,6 +8,10 @@ from rest_framework.permissions import *
 from .models import PublicChatRoom, PublicChatUserMessage
 from .serializers import PublicChatRoomSerializer
 from django.shortcuts import render
+
+
+def test(request):
+    return render(request, 'chat/test.html')
 
 
 class PublicChatRoomView(APIView):
@@ -25,3 +31,4 @@ def room(request, room_name):
     return render(request, 'chat/room.html', {
         'room_name': room_name
     })
+

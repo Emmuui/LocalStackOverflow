@@ -1,18 +1,23 @@
-import json
-from channels.generic.websocket import WebsocketConsumer
+import os
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+from djangochannelsrestframework import mixins
+from userapp.models import UserProfile
+from .serializers import UserSerializer
 
 
-class ChatConsumer(WebsocketConsumer):
-    def connect(self):
-        self.accept()
+class UserConsumer(
+        mixins.ListModelMixin,
+        mixins.RetrieveModelMixin,
+        mixins.PatchModelMixin,
+        mixins.UpdateModelMixin,
+        mixins.CreateModelMixin,
+        mixins.DeleteModelMixin,
+        GenericAsyncAPIConsumer,
+):
 
-    def disconnect(self, close_code):
-        pass
-
-    def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-
-        self.send(text_data=json.dumps({
-            'message': message
-        }))
+    queryset = UserProfile.objects.all()
+    serializer_class = UserSerializer
