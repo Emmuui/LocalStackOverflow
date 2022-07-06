@@ -5,30 +5,21 @@ from userapp.models import UserProfile
 
 
 class Chat(models.Model):
-    first_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='first_user')
-    second_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='second_user')
+    members = models.ManyToManyField(UserProfile)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.first_user} - {self.second_user}'
+        return f'{self.id} - {self.created_at}'
 
 
 class MessageToUser(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='message_to_user')
+    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='author_message')
     text = models.TextField(verbose_name='message')
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='message_chat')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'id: {self.id}, Owner: {self.owner}, text: {self.text[:30]}'
-
-
-
-
-
-
-
-
+        return f'id: {self.id}, Owner: {self.author}, text: {self.text[:30]}'
 
 
 class PublicChatRoom(models.Model):
