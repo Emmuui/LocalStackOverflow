@@ -8,7 +8,8 @@ from rest_framework.permissions import *
 
 from userapp.permissions import IsOwnerOnly
 from .models import PublicChatRoom, PublicChatUserMessage, MessageToUser, Chat
-from .serializers import MessageToUserSerializer, GetAllMessageFromChatSerializer, OutPutUserMessageSerializer
+from .serializers import MessageToUserSerializer, ListOfChatToOneUserSerializer,\
+    OutPutUserMessageSerializer, MessageListByOneChatSerializer
 from .services import MessageService
 
 
@@ -24,29 +25,18 @@ class MessageToUserCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetListChatByOneUser(APIView):
+class GetListChatUser(APIView):
 
     def get(self, request):
-        queryset = Chat.objects.get(members=self.request.user.id)
-        print(queryset)
-        serializer = GetAllMessageFromChatSerializer(queryset)
+        queryset = Chat.objects.filter(members=self.request.user.id)
+        serializer = ListOfChatToOneUserSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class MessageToUserPutView(APIView):
-    def put(self, request, pk):
-        queryset = MessageToUser.objects.get(pk=pk)
-        serializer = MessageToUserSerializer(queryset, data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=self.request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class GetAllMessageIfOwnerView(APIView):
+class GetAllMessageFromOneChat(APIView):
     # permission_classes = (IsOwnerOnly, )
 
-    def get(self, request):
-        message = MessageToUser.objects.filter(user=self.request.user)
-        serializer = MessageToUserSerializer(message, many=True)
+    def get(self, request, pk):
+        queryset = MessageToUser.objects.filter(chat=pk)
+        serializer = MessageListByOneChatSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -19,7 +19,7 @@ class OutPutUserMessageSerializer(serializers.ModelSerializer):
         fields = ['author', 'text', 'chat', 'created_at']
 
 
-class GetAllMessageFromChatSerializer(serializers.ModelSerializer):
+class ListOfChatToOneUserSerializer(serializers.ModelSerializer):
     message_chat = OutPutUserMessageSerializer(many=True)
 
     class Meta:
@@ -27,9 +27,8 @@ class GetAllMessageFromChatSerializer(serializers.ModelSerializer):
         fields = ['members', 'message_chat', 'created_at']
 
 
-class MessageListByOwnerSerializer(serializers.ModelSerializer):
+class MessageListByOneChatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MessageToUser
-        fields = ['user', 'chat', 'created_at']
-        depth = 1
+        fields = ['author', 'text', 'chat', 'created_at']
