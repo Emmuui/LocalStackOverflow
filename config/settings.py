@@ -81,7 +81,13 @@ CHANNEL_LAYERS = {
     },
 }
 
-WSGI_APPLICATION = 'config.wsgi.application'
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels.layers.InMemoryChannelLayer"
+#     },
+# }
+
+# WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 # Database

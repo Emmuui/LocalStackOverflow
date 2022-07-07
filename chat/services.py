@@ -49,7 +49,10 @@ class MessageService:
             return self.get_or_create_chat
 
     def create_message(self):
-        id = self.get_or_create_chat.id
+        try:
+            id = self.get_or_create_chat.first().id
+        except:
+            id = self.get_or_create_chat.id
         chat = Chat.objects.get(pk=id)
         message = MessageToUser.objects.create(
             author=self.author_userprofile_instance,
@@ -61,7 +64,16 @@ class MessageService:
         message.save()
         return message
 
+    def return_chat(self):
+        try:
+            queryset = MessageToUser.objects.filter(chat=self.get_or_create_chat.first().id)
+        except:
+            queryset = MessageToUser.objects.filter(chat=self.get_or_create_chat.id)
+        return queryset
+
     def run_system(self):
         self.get_chat()
         self.create_chat()
-        return self.create_message()
+        self.create_message()
+        return self.return_chat()
+

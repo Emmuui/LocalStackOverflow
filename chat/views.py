@@ -1,16 +1,15 @@
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 from rest_framework import status
-from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import *
-
-from userapp.permissions import IsOwnerOnly
-from .models import PublicChatRoom, PublicChatUserMessage, MessageToUser, Chat
+from .models import MessageToUser, Chat
 from .serializers import MessageToUserSerializer, ListOfChatToOneUserSerializer,\
-    OutPutUserMessageSerializer, MessageListByOneChatSerializer
+    MessageListByOneChatSerializer
 from .services import MessageService
+from django.shortcuts import render
+
+
+def render_test_page(request, group_name):
+    return render(request, 'chat/test.html', {'groupname': group_name})
 
 
 class MessageToUserCreateView(APIView):
@@ -20,7 +19,7 @@ class MessageToUserCreateView(APIView):
         if serializer.is_valid():
             service = MessageService(data=serializer.validated_data)
             obj = service.run_system()
-            output_serializer = OutPutUserMessageSerializer(obj)
+            output_serializer = MessageListByOneChatSerializer(obj, many=True)
             return Response(output_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
