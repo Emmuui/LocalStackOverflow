@@ -8,12 +8,11 @@ from .models import MessageToUser, Chat
 
 
 class MessageService:
-    def __init__(self, data):
-        self.data = data
-        self.author = self.data.get('author')
-        self.text = self.data.get('text')
-        self.chat = self.data.get('chat')
-        self.recipient = self.data.get('recipient')
+    def __init__(self, author, text, recipient, chat):
+        self.author = author
+        self.text = text
+        self.chat = chat
+        self.recipient = recipient
         self.get_or_create_chat = None
         self.author_userprofile_instance = UserProfile.objects.get(pk=self.author)
 
@@ -64,16 +63,7 @@ class MessageService:
         message.save()
         return message
 
-    def return_chat(self):
-        try:
-            queryset = MessageToUser.objects.filter(chat=self.get_or_create_chat.first().id)
-        except:
-            queryset = MessageToUser.objects.filter(chat=self.get_or_create_chat.id)
-        return queryset
-
     def run_system(self):
         self.get_chat()
         self.create_chat()
-        self.create_message()
-        return self.return_chat()
-
+        return self.create_message()

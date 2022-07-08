@@ -5,14 +5,34 @@
     <title>Title</title>
 </head>
 <body>
-    <h1>Group name: {{groupname}}</h1>
-    {{group_name|json_script:"groupname"}}
+    <h1>Group name: {{pk}}</h1>
+    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <input id="chat-message-input" type="text"><br>
+    <input id="chat-message-submit" type="button" value="Send">
+    {{pk|json_script:"pk_id"}}
 <script>
-    const groupName = JSON.parse(document.getElementById("group-name").textContent)
+    const groupName = JSON.parse(document.getElementById("pk_id").textContent)
     console.log(groupName)
-    var ws = new WebSocket(
-        "ws://localhost:8000/ws/sync/" + groupName + '/'
+    const ws = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/sync/'
+        + groupName
+        + '/'
     )
+    ws.onopen = function (){
+        console.log('Websocket open....')
+    }
+
+    document.getElementById('chat-message-submit').onclick =
+        function (event){
+            const messageInputDom = document.getElementById('chat-message-input')
+            const message = messageInputDom.value
+            ws.send(JSON.stringify({
+                'msg': message
+            }))
+            messageInputDom.value = ''
+    }
 </script>
 </body>
 </html>
